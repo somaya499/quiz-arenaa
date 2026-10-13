@@ -1,136 +1,178 @@
 <!doctype html>
 <html lang="de">
 <head>
-<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
-<title>QuizShow Live – Jeopardy mit Freunden</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-:root{--bg:#08152f;--panel:#10254b;--tile:#174bba;--tile2:#103a91;--gold:#ffd65a;--text:#f7f9ff;--muted:#b9c8e8;--line:#345488}
-*{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#163a79,#08152f 68%);color:var(--text);font-family:system-ui,-apple-system,Segoe UI,sans-serif;min-height:100vh}
-header{text-align:center;padding:20px 14px 8px}h1{color:var(--gold);font-size:clamp(28px,5vw,46px);margin:0;letter-spacing:.04em;text-shadow:0 3px 0 #523f09}header p{color:var(--muted);margin:8px 0 0}
-main{max-width:1200px;margin:auto;padding:12px 14px 36px}.panel{background:#0c1d3b;border:1px solid #274475;border-radius:16px;padding:16px;margin:12px 0}.row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}.grow{flex:1;min-width:180px}
-input,textarea,select{font:inherit;color:var(--text);background:#07142d;border:1px solid #41649c;border-radius:9px;padding:10px;width:100%}textarea{min-height:76px;resize:vertical}label{display:block;color:var(--muted);font-size:13px;margin:10px 0 5px}
-button,.btn{border:0;border-radius:10px;padding:10px 14px;font-weight:800;cursor:pointer;background:var(--gold);color:#172344;font:inherit;font-weight:800}.secondary{background:#203d70;color:white;border:1px solid #41649c}.danger{background:#9c2d43;color:white}.smallbtn{padding:7px 10px;font-size:13px}
-.note{color:var(--muted);font-size:13px;line-height:1.5}.status{border-radius:999px;padding:6px 10px;background:#173b30;color:#a9f0cc;font-size:12px;font-weight:700}.hidden{display:none!important}
-.board{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:7px;margin:14px 0}.cat{background:#0c1d3b;border:1px solid #4365a2;border-radius:8px;padding:12px 4px;text-align:center;font-weight:850;font-size:clamp(10px,1.5vw,16px);overflow-wrap:anywhere;display:flex;align-items:center;justify-content:center;min-height:68px}.cell{background:linear-gradient(145deg,var(--tile),var(--tile2));border:1px solid #5688ed;color:var(--gold);border-radius:8px;min-height:68px;font-size:clamp(18px,3vw,32px);font-weight:900;box-shadow:0 3px 0 #07122b}.cell:disabled{opacity:.32;text-decoration:line-through;cursor:default}.teams{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:9px}.team{background:#142d56;border-radius:12px;padding:12px}.teamhead{display:flex;gap:7px;align-items:center}.team input{min-width:0}.score{font-size:27px;color:var(--gold);font-weight:900;margin:7px 0}.sectiontitle{margin:0 0 10px;color:var(--gold)}.editorgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:12px}.qcard{border:1px solid #345488;border-radius:12px;padding:12px;margin:10px 0}.overlay{position:fixed;inset:0;background:#020817ed;display:none;align-items:center;justify-content:center;padding:12px;z-index:5}.modal{width:min(850px,100%);max-height:94vh;overflow:auto;background:#10254b;border:2px solid #557bc4;border-radius:20px;padding:clamp(16px,4vw,30px);text-align:center}.modal h2{color:var(--gold);font-size:clamp(23px,4vw,38px);white-space:pre-wrap}.media img{max-width:100%;max-height:38vh;object-fit:contain;border-radius:10px}.media iframe{width:min(100%,740px);aspect-ratio:16/9;border:0;border-radius:10px}.answer{display:none;background:#07142d;border-radius:12px;padding:15px;margin:12px 0;white-space:pre-wrap;font-size:19px}.actions{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-top:14px}.playerslist{display:flex;gap:8px;flex-wrap:wrap}.pill{border:1px solid #41649c;border-radius:999px;padding:6px 10px;background:#142d56;font-size:13px}.sharecode{font-size:30px;letter-spacing:.18em;color:var(--gold);font-weight:900}.msg{min-height:20px;color:var(--muted);font-size:13px}.rule{border:0;border-top:1px solid #274475;margin:16px 0}
-@media(max-width:600px){main{padding:7px}.panel{padding:12px}.board{gap:4px}.cat{min-height:57px;padding:5px 2px}.cell{min-height:55px}.actions button{flex:1}.sharecode{font-size:25px}}
-</style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>QuizShow Live – Quiz-Duell mit Freunden</title>
+  <style>
+    :root{--bg:#08152f;--panel:#10254b;--tile:#174bba;--tile2:#103a91;--gold:#ffd65a;--text:#f7f9ff;--muted:#b9c8e8;--line:#345488}
+    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#163a79,#08152f 68%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+    header{text-align:center;padding:20px 14px 8px}h1{color:var(--gold);font-size:clamp(28px,5vw,46px);margin:0;letter-spacing:.04em;text-shadow:0 3px 12px rgba(0,0,0,.4)}
+    main{max-width:1200px;margin:auto;padding:12px 14px 36px}.panel{background:#0c1d3b;border:1px solid #274475;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+    input,textarea,select{font:inherit;color:var(--text);background:#07142d;border:1px solid #41649c;border-radius:9px;padding:10px;width:100%}
+    button,.btn{border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;background:var(--gold);color:#172344;font-size:15px;transition:transform .1s,opacity .2s}
+    button:hover{opacity:.9}button:active{transform:scale(.97)}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    @media(max-width:700px){.grid-2{grid-template-columns:1fr}}
+    .status{border-radius:999px;padding:6px 14px;background:#173b30;color:#a1f5d0;font-size:13px;display:inline-block;margin-top:8px}
+    .code-box{font-size:24px;font-weight:900;letter-spacing:4px;color:var(--gold);background:#07142d;padding:12px;border-radius:10px;text-align:center;margin:12px 0}
+  </style>
 </head>
 <body>
-<header><h1>QUIZSHOW LIVE</h1><p>Dein Jeopardy. Deine Fragen. Deine Crew.</p></header>
-<main>
-<section id="setup" class="panel">
-<h2 class="sectiontitle">🚀 Spiel starten oder beitreten</h2>
-<p class="note">Für den Online-Modus brauchst du einmalig ein kostenloses Supabase-Projekt. Die Anleitung steht in der mitgelieferten README-Datei. Ohne Verbindung kannst du den Editor auch lokal ausprobieren.</p>
-<div class="editorgrid">
-<div><label>Supabase Project URL</label><input id="supabaseUrl" placeholder="https://deinprojekt.supabase.co"></div>
-<div><label>Supabase anon / publishable key</label><input id="supabaseKey" placeholder="sb_publishable_… oder anon key"></div>
-</div>
-<div class="row" style="margin-top:12px"><button id="connectBtn">Online verbinden</button><span id="connectStatus" class="msg">Noch nicht verbunden</span></div>
-<hr class="rule">
-<div class="editorgrid">
-<div><h3>🎤 Neues Spiel erstellen</h3><label>Dein Name</label><input id="hostName" value="Spielleitung" maxlength="24"><button id="createBtn" style="margin-top:10px">Spiel erstellen</button></div>
-<div><h3>📱 Mit Spielcode beitreten</h3><label>Dein Name</label><input id="playerName" placeholder="Dein Name" maxlength="24"><label>Spielcode</label><input id="joinCode" placeholder="z. B. K7P4Q" maxlength="5" style="text-transform:uppercase"><button id="joinBtn" style="margin-top:10px">Beitreten</button></div>
-</div>
-<div id="setupMsg" class="msg"></div>
-</section>
-<section id="game" class="hidden">
-<div class="panel row"><div class="grow"><strong id="roleLabel">Spiel</strong><div class="note" id="roomLabel"></div></div><div><div class="note">SPIELCODE</div><div class="sharecode" id="codeDisplay">-----</div></div><button class="secondary" id="copyCode">Code kopieren</button><button class="secondary" id="leaveBtn">Verlassen</button></div>
-<div class="panel"><h2 class="sectiontitle">🏆 Punktestand</h2><div id="teams" class="teams"></div><div class="playerslist" id="players" style="margin-top:10px"></div></div>
-<div id="hostControls" class="panel hidden">
-<h2 class="sectiontitle">🛠️ Spielleitung</h2><div class="row"><button id="editCatsBtn">Kategorien bearbeiten</button><button class="secondary" id="addTeamBtn">Team hinzufügen</button><button class="secondary" id="resetBtn">Runde zurücksetzen</button></div>
-<div id="catEditor" class="editorgrid hidden" style="margin-top:12px"></div><button id="saveCatsBtn" class="hidden" style="margin-top:10px">Kategorien speichern</button>
-<p class="note">Tippe auf ein Punktefeld, um Frage, Antwort, Bild oder YouTube-Link einzutragen. Die Änderungen werden mit allen verbundenen Geräten geteilt.</p>
-</div>
-<div id="board" class="board"></div>
-<div id="playerMessage" class="panel hidden">Du bist dabei! Schau auf den Hauptbildschirm, wenn die Spielleitung eine Frage öffnet. 🥳</div>
-</section>
-</main>
-<div id="questionOverlay" class="overlay"><div class="modal">
-<div class="note" id="questionMeta"></div><h2 id="questionText"></h2><div id="questionMedia" class="media"></div><div id="answerText" class="answer"></div>
-<div id="hostQuestionActions" class="actions hidden"><button id="revealBtn">Antwort zeigen</button><button class="secondary" id="editThisBtn">Frage bearbeiten</button><button class="secondary" id="scoreBtn">Punkte vergeben</button><button class="secondary" id="closeQuestionBtn">Zurück zum Brett</button></div>
-<div id="scoreActions" class="actions hidden"></div><div id="playerQuestionNote" class="note hidden">Die Spielleitung hat diese Frage geöffnet.</div>
-</div></div>
-<div id="editOverlay" class="overlay"><div class="modal" style="text-align:left">
-<h2 style="text-align:center">Frage bearbeiten</h2>
-<label>Kategorie</label><input id="qCategory"><label>Punkte</label><input id="qPoints" type="number" min="100" step="100">
-<label>Frage</label><textarea id="qPrompt" placeholder="Frage hier eingeben"></textarea><label>Antwort</label><textarea id="qAnswer" placeholder="Richtige Antwort"></textarea>
-<label>YouTube-Link</label><input id="qVideo" placeholder="https://www.youtube.com/watch?v=...">
-<label>Bild-Link (optional)</label><input id="qImageUrl" placeholder="Direkter Link zu einem Bild">
-<label>Oder Bild vom Gerät hochladen</label><input id="qImageFile" type="file" accept="image/*">
-<p class="note">Ein Bild-Upload wird als Teil des Spielstands geteilt. Bitte kleine Bilder verwenden (unter 1,5 MB). YouTube muss das Einbetten erlauben; YouTube Shorts funktionieren nicht immer im eingebetteten Player.</p>
-<div class="actions"><button id="saveQBtn">Frage speichern</button><button class="secondary" id="cancelQBtn">Abbrechen</button></div>
-</div></div>
-<script>
-const $=id=>document.getElementById(id);
-const PTS=[100,200,300,400,500], DEFAULT_CATS=["ALLGEMEINWISSEN","MUSIK","SPORT","INTERNET","GESCHICHTE"];
-let sb=null,channel=null,online=false,isHost=false,room="",playerId=crypto.randomUUID?crypto.randomUUID():String(Math.random()).slice(2),playerName="Spieler",hostId="",game={categories:[...DEFAULT_CATS],questions:{},used:{},teams:[{id:"t1",name:"Team 1",score:0},{id:"t2",name:"Team 2",score:0}],players:[],activeKey:null,reveal:false},localKey="quizshow-live-draft-v1",editingKey=null,uploadData="";
-const k=(c,p)=>`${c}__${p}`;
-const esc=s=>String(s??"").replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]));
-function initQs(){game.categories.forEach(c=>PTS.forEach(p=>{const id=k(c,p);if(!game.questions[id])game.questions[id]={question:"Hier deine Frage eingeben",answer:"Hier die Antwort eintragen",video:"",image:""};}));}
-function saveDraft(){try{localStorage.setItem(localKey,JSON.stringify(game))}catch(e){}}
-function say(id,msg){$(id).textContent=msg}
-function send(type,payload={}){if(!channel||!online)return;channel.send({type:"broadcast",event:"game",payload:{type,from:playerId,room,...payload}}).catch(e=>console.error(e))}
-function persistAndSync(){saveDraft();if(isHost)send("STATE",{game});render();}
-function safeImage(url){return /^https?:\/\//i.test(url||"")}
-function videoId(s){try{const u=new URL(s);if(u.hostname==="youtu.be"||u.hostname.endsWith(".youtu.be"))return u.pathname.split("/").filter(Boolean)[0];if(u.hostname.includes("youtube.com")){if(u.pathname==="/watch")return u.searchParams.get("v");const m=u.pathname.match(/\/(embed|shorts|live)\/([^/?]+)/);if(m)return m[2]}}catch(e){}return null}
-function render(){
-$("codeDisplay").textContent=room||"-----";$("roomLabel").textContent=online?"Online verbunden":"Lokaler Entwurf";$("roleLabel").textContent=isHost?"🎤 Du bist die Spielleitung":"📱 Du spielst mit";
-$("hostControls").classList.toggle("hidden",!isHost);$("playerMessage").classList.toggle("hidden",isHost);
-const teams=$("teams");teams.innerHTML="";
-game.teams.forEach(t=>{const d=document.createElement("div");d.className="team";d.innerHTML=`<div class="teamhead"><strong style="flex:1">${esc(t.name)}</strong>${isHost?`<button class="secondary smallbtn" data-minus="${t.id}">−</button><button class="secondary smallbtn" data-plus="${t.id}">+</button>`:""}</div><div class="score">${t.score} pts</div>`;teams.appendChild(d)});
-teams.querySelectorAll("[data-minus]").forEach(b=>b.onclick=()=>score(b.dataset.minus,-100));teams.querySelectorAll("[data-plus]").forEach(b=>b.onclick=()=>score(b.dataset.plus,100));
-const pl=$("players");pl.innerHTML="";(game.players||[]).forEach(p=>{let s=document.createElement("span");s.className="pill";s.textContent=(p.name||"Spieler")+(p.id===hostId?" · Host":"");pl.appendChild(s)});
-const board=$("board");board.innerHTML="";
-game.categories.forEach(c=>{const h=document.createElement("div");h.className="cat";h.textContent=c;board.appendChild(h)});
-PTS.forEach(p=>game.categories.forEach(c=>{const id=k(c,p),b=document.createElement("button");b.className="cell";b.textContent=p;b.disabled=!!game.used[id];b.onclick=()=>{if(isHost){game.activeKey=id;game.reveal=false;persistAndSync();showQuestion()}};board.appendChild(b)}));
-if(game.activeKey&&$("questionOverlay").style.display==="flex")showQuestion(false);
-}
-function score(id,delta){if(!isHost)return;let t=game.teams.find(x=>x.id===id);if(t){t.score+=delta;persistAndSync()}}
-function showQuestion(broadcast=true){const id=game.activeKey;if(!id)return;const q=game.questions[id]||{},parts=id.split("__");$("questionMeta").textContent=`${parts[0]} • ${parts[1]} PUNKTE`;$("questionText").textContent=q.question||"Noch keine Frage";$("answerText").textContent=q.answer||"Noch keine Antwort";$("answerText").style.display=game.reveal?"block":"none";$("revealBtn").textContent=game.reveal?"Antwort verbergen":"Antwort zeigen";
-const media=$("questionMedia");media.innerHTML="";if(q.image){const im=document.createElement("img");im.alt="Bild zur Frage";im.src=q.image;media.appendChild(im)}
-if(q.video){const idv=videoId(q.video);if(idv){const f=document.createElement("iframe");f.src=`https://www.youtube-nocookie.com/embed/${encodeURIComponent(idv)}?rel=0`;f.title="YouTube-Video";f.allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share";f.allowFullscreen=true;media.appendChild(f)}else{const a=document.createElement("a");a.href=q.video;a.target="_blank";a.rel="noopener";a.textContent="Video auf YouTube öffnen";a.style.color="#ffd65a";media.appendChild(a)}}
-$("hostQuestionActions").classList.toggle("hidden",!isHost);$("playerQuestionNote").classList.toggle("hidden",isHost);$("scoreActions").classList.add("hidden");$("questionOverlay").style.display="flex";if(broadcast!==false&&isHost)send("STATE",{game})}
-function closeQuestion(){if(isHost&&game.activeKey){game.used[game.activeKey]=true;game.activeKey=null;game.reveal=false;persistAndSync()}$("questionOverlay").style.display="none"}
-$("revealBtn").onclick=()=>{game.reveal=!game.reveal;persistAndSync();showQuestion()};
-$("closeQuestionBtn").onclick=closeQuestion;
-$("scoreBtn").onclick=()=>{const box=$("scoreActions");box.innerHTML="";game.teams.forEach(t=>{const b=document.createElement("button");b.textContent=`${t.name} +${game.activeKey.split("__")[1]}`;b.onclick=()=>{score(t.id,Number(game.activeKey.split("__")[1]));box.classList.add("hidden")};box.appendChild(b)});box.classList.remove("hidden")};
-$("editThisBtn").onclick=()=>openQEditor(game.activeKey);
-function openQEditor(id){editingKey=id;const q=game.questions[id]||{};let a=id.split("__");$("qCategory").value=a[0];$("qPoints").value=a[1];$("qPrompt").value=q.question||"";$("qAnswer").value=q.answer||"";$("qVideo").value=q.video||"";$("qImageUrl").value=q.image&&!q.image.startsWith("data:")?q.image:"";$("qImageFile").value="";uploadData=q.image?.startsWith("data:")?q.image:"";$("questionOverlay").style.display="none";$("editOverlay").style.display="flex"}
-$("qImageFile").onchange=e=>{const f=e.target.files[0];if(!f)return;if(f.size>1.5*1024*1024){alert("Bitte ein Bild unter 1,5 MB verwenden.");e.target.value="";return}const r=new FileReader();r.onload=()=>uploadData=r.result;r.readAsDataURL(f)};
-$("saveQBtn").onclick=()=>{let cat=$("qCategory").value.trim()||"Kategorie",pts=Math.max(100,Number($("qPoints").value)||100);if(!game.categories.includes(cat))game.categories.push(cat);const nk=k(cat,pts);game.questions[nk]={question:$("qPrompt").value,answer:$("qAnswer").value,video:$("qVideo").value.trim(),image:$("qImageUrl").value.trim()||uploadData};if(editingKey!==nk)delete game.questions[editingKey];game.activeKey=nk;$("editOverlay").style.display="none";persistAndSync();showQuestion()};
-$("cancelQBtn").onclick=()=>{$("editOverlay").style.display="none";if(game.activeKey)showQuestion()};
-$("editCatsBtn").onclick=()=>{const e=$("catEditor");e.innerHTML="";game.categories.forEach((c,i)=>{let d=document.createElement("div");d.innerHTML=`<label>Kategorie ${i+1}</label><input data-cat="${i}" value="${esc(c)}">`;e.appendChild(d)});e.classList.toggle("hidden");$("saveCatsBtn").classList.toggle("hidden")};
-$("saveCatsBtn").onclick=()=>{const old=[...game.categories],next=[];document.querySelectorAll("[data-cat]").forEach(i=>next.push(i.value.trim()||"Kategorie"));if(next.length!==5){alert("Bitte genau fünf Kategorien verwenden, damit das Spielbrett korrekt bleibt.");return}const nq={};next.forEach((c,i)=>PTS.forEach(p=>{nq[k(c,p)]=game.questions[k(old[i],p)]||{question:"Hier deine Frage eingeben",answer:"Hier die Antwort eintragen",video:"",image:""}}));game.categories=next;game.questions=nq;$("catEditor").classList.add("hidden");$("saveCatsBtn").classList.add("hidden");persistAndSync()};
-$("addTeamBtn").onclick=()=>{const name=prompt("Wie soll das Team heißen?");if(name){game.teams.push({id:crypto.randomUUID(),name:name.slice(0,30),score:0});persistAndSync()}};
-$("resetBtn").onclick=()=>{if(confirm("Alle Felder wieder freigeben und Punkte auf null setzen?")){game.used={};game.teams.forEach(t=>t.score=0);game.activeKey=null;game.reveal=false;persistAndSync();$("questionOverlay").style.display="none"}};
-async function connect(){const url=$("supabaseUrl").value.trim(),key=$("supabaseKey").value.trim();if(!url||!key){say("connectStatus","Bitte Project URL und anon/publishable key eintragen.");return false}try{sb=window.supabase.createClient(url,key);say("connectStatus","Verbindung wird geprüft …");const {error}=await sb.channel("quizshow-connection-test",{config:{broadcast:{self:false}}}).subscribe((status)=>{if(status==="SUBSCRIBED"){online=true;say("connectStatus","Verbunden ✓");localStorage.setItem("quizshow-supabase-url",url);localStorage.setItem("quizshow-supabase-key",key)}});return true}catch(e){say("connectStatus","Verbindung fehlgeschlagen: "+e.message);return false}}
-$("connectBtn").onclick=connect;
-function newCode(){const chars="ABCDEFGHJKLMNPQRSTUVWXYZ23456789";let s="";for(let i=0;i<5;i++)s+=chars[Math.floor(Math.random()*chars.length)];return s}
-function openChannel(code){room=code;channel=sb.channel("quizshow-room-"+room,{config:{broadcast:{self:false},presence:{key:playerId}}});channel.on("broadcast",{event:"game"},({payload})=>{if(payload.room!==room||payload.from===playerId)return;if(payload.type==="JOIN"&&isHost){if(!game.players.some(p=>p.id===payload.player.id))game.players.push(payload.player);send("STATE",{game});saveDraft();render()}if(payload.type==="STATE"&&!isHost){game=payload.game;saveDraft();render()}if(payload.type==="HOST_LEFT"){say("setupMsg","Die Spielleitung hat die Verbindung beendet.")}});channel.on("presence",{event:"sync"},()=>{if(isHost){const state=channel.presenceState();const list=[];Object.values(state).flat().forEach(x=>{if(x.player&&!list.some(p=>p.id===x.player.id))list.push(x.player)});game.players=list;if(!list.some(p=>p.id===playerId))game.players.push({id:playerId,name:playerName});send("STATE",{game});render()}});channel.subscribe(async status=>{if(status==="SUBSCRIBED"){await channel.track({player:{id:playerId,name:playerName}});online=true;if(isHost){game.players=[{id:playerId,name:playerName}];send("STATE",{game})}else{send("JOIN",{player:{id:playerId,name:playerName}});setTimeout(()=>send("JOIN",{player:{id:playerId,name:playerName}}),1200)}$("setup").classList.add("hidden");$("game").classList.remove("hidden");render()}})}
-$("createBtn").onclick=async()=>{if(!sb){say("setupMsg","Bitte zuerst online verbinden.");return}playerName=$("hostName").value.trim()||"Spielleitung";isHost=true;hostId=playerId;room=newCode();try{game=JSON.parse(localStorage.getItem(localKey)||"null")||game}catch(e){}game.categories=game.categories||[...DEFAULT_CATS];game.questions=game.questions||{};game.used={};game.activeKey=null;game.reveal=false;initQs();saveDraft();openChannel(room)};
-$("joinBtn").onclick=()=>{if(!sb){say("setupMsg","Bitte zuerst online verbinden.");return}playerName=$("playerName").value.trim()||"Spieler";isHost=false;room=$("joinCode").value.trim().toUpperCase();if(room.length!==5){say("setupMsg","Der Spielcode muss fünf Zeichen haben.");return}openChannel(room)};
-$("copyCode").onclick=async()=>{try{await navigator.clipboard.writeText(room);$("copyCode").textContent="Kopiert ✓";setTimeout(()=>$("copyCode").textContent="Code kopieren",1400)}catch(e){prompt("Kopiere diesen Spielcode:",room)}};
-$("leaveBtn").onclick=()=>{if(isHost&&channel)send("HOST_LEFT");if(channel)sb.removeChannel(channel);channel=null;online=false;isHost=false;room="";$("game").classList.add("hidden");$("setup").classList.remove("hidden");$("questionOverlay").style.display="none"};
-try{$("supabaseUrl").value=localStorage.getItem("quizshow-supabase-url")||"";$("supabaseKey").value=localStorage.getItem("quizshow-supabase-key")||"";const d=localStorage.getItem(localKey);if(d)game=JSON.parse(d)}catch(e){}
-initQs();render();
-</script>
+  <header>
+    <h1>QUIZSHOW LIVE</h1>
+    <p>Dein Quiz-Duell. Deine Fragen. Deine Crew.</p>
+  </header>
+
+  <main>
+    <!-- Spiel starten / beitreten -->
+    <section id="setup" class="panel">
+      <h2>🚀 Spiel starten oder beitreten</h2>
+      
+      <div class="grid-2">
+        <!-- Raum erstellen -->
+        <div>
+          <h3>🎤 Neues Spiel erstellen</h3>
+          <label style="font-size:13px;color:var(--muted);">Dein Name (Spielleitung)</label>
+          <input type="text" id="hostName" value="Spielleitung" style="margin-top:4px;margin-bottom:12px;">
+          <button id="createBtn">Spiel erstellen</button>
+        </div>
+
+        <!-- Raum beitreten -->
+        <div>
+          <h3>📱 Mit Spielcode beitreten</h3>
+          <label style="font-size:13px;color:var(--muted);">Dein Name</label>
+          <input type="text" id="playerName" placeholder="Dein Name" style="margin-top:4px;margin-bottom:8px;">
+          
+          <label style="font-size:13px;color:var(--muted);">Spielcode</label>
+          <input type="text" id="joinCode" placeholder="Z. B. K7P4Q" style="margin-top:4px;margin-bottom:12px;text-transform:uppercase;">
+          <button id="joinBtn">Beitreten</button>
+        </div>
+      </div>
+
+      <div id="statusMsg" style="margin-top:12px;font-weight:600;color:var(--gold);"></div>
+    </section>
+
+    <!-- Raum Info (wird sichtbar wenn aktiv) -->
+    <section id="roomArea" class="panel" style="display:none;">
+      <h2>Lobby</h2>
+      <p>Teile diesen Spielcode mit deinen Freunden:</p>
+      <div class="code-box" id="displayCode">-----</div>
+      <div id="playerList"><strong>Mitspieler:</strong> <span id="playersText">Warte auf Spieler...</span></div>
+    </section>
+  </main>
+
+  <!-- Firebase SDK & Logik -->
   <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+    import { getDatabase, ref, set, get, child, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-  // Your web app's Firebase configuration
-  const firebaseConfig = {
-    apiKey: "AIzaSyBKpsb9QBZDn7oulxxcu0Ckziq74rjhrR8",
-    authDomain: "quiz-duell-online.firebaseapp.com",
-    databaseURL: "https://quiz-duell-online-default-rtdb.europe-west1.firebasedatabase.app",
-    projectId: "quiz-duell-online",
-    storageBucket: "quiz-duell-online.firebasestorage.app",
-    messagingSenderId: "350039999105",
-    appId: "1:350039999105:web:3120329d853687f6654380"
-  };
+    // Firebase Konfiguration
+    const firebaseConfig = {
+      apiKey: "AIzaSyBKpsb9QBZDn7oulxxcu0Ckziq74rjhrR8",
+      authDomain: "quiz-duell-online.firebaseapp.com",
+      databaseURL: "https://quiz-duell-online-default-rtdb.europe-west1.firebasedatabase.app",
+      projectId: "quiz-duell-online",
+      storageBucket: "quiz-duell-online.firebasestorage.app",
+      messagingSenderId: "350039999105",
+      appId: "1:350039999105:web:3120329d853687f6654380"
+    };
 
-  // Initialize Firebase
-  const app = initializeApp(firebaseConfig);
-</script>
+    // Firebase Initialisieren
+    const app = initializeApp(firebaseConfig);
+    const db = getDatabase(app);
 
-</body></html>
+    // Code Generator
+    function generateCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let code = "";
+      for (let i = 0; i < 5; i++) {
+        code += chars.charAt(Math.floor(Math.random() * chars.length));
+      }
+      return code;
+    }
+
+    // Dom Elemente
+    const createBtn = document.getElementById("createBtn");
+    const joinBtn = document.getElementById("joinBtn");
+    const statusMsg = document.getElementById("statusMsg");
+    const setupSection = document.getElementById("setup");
+    const roomArea = document.getElementById("roomArea");
+    const displayCode = document.getElementById("displayCode");
+    const playersText = document.getElementById("playersText");
+
+    // Raum erstellen
+    createBtn.onclick = async () => {
+      const hostName = document.getElementById("hostName").value.trim() || "Spielleitung";
+      const roomCode = generateCode();
+
+      statusMsg.innerText = "Erstelle Raum...";
+
+      try {
+        await set(ref(db, 'rooms/' + roomCode), {
+          host: hostName,
+          created: Date.now(),
+          players: {
+            host: hostName
+          }
+        });
+
+        enterRoom(roomCode, hostName);
+      } catch (err) {
+        statusMsg.innerText = "Fehler beim Erstellen: " + err.message;
+      }
+    };
+
+    // Raum beitreten
+    joinBtn.onclick = async () => {
+      const name = document.getElementById("playerName").value.trim();
+      const code = document.getElementById("joinCode").value.trim().toUpperCase();
+
+      if (!name) {
+        alert("Bitte gib deinen Namen ein!");
+        return;
+      }
+      if (!code) {
+        alert("Bitte gib einen Spielcode ein!");
+        return;
+      }
+
+      statusMsg.innerText = "Suche Raum...";
+
+      try {
+        const snapshot = await get(child(ref(db), 'rooms/' + code));
+        if (snapshot.exists()) {
+          // Spieler hinzufügen
+          const playerKey = name.replace(/[^a-zA-Z0-9]/g, "_");
+          await update(ref(db, 'rooms/' + code + '/players'), {
+            [playerKey]: name
+          });
+
+          enterRoom(code, name);
+        } else {
+          statusMsg.innerText = "❌ Spielcode nicht gefunden!";
+        }
+      } catch (err) {
+        statusMsg.innerText = "Fehler beim Beitreten: " + err.message;
+      }
+    };
+
+    // Raum betreten und Live-Daten hören
+    function enterRoom(code, myName) {
+      statusMsg.innerText = "Verbunden!";
+      displayCode.innerText = code;
+      roomArea.style.display = "block";
+
+      // Live-Updates empfangen
+      const roomRef = ref(db, 'rooms/' + code);
+      onValue(roomRef, (snapshot) => {
+        const data = snapshot.val();
+        if (data && data.players) {
+          const list = Object.values(data.players).join(", ");
+          playersText.innerText = list;
+        }
+      });
+    }
+  </script>
+</body>
+</html>
