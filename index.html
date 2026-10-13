@@ -45,8 +45,16 @@
     /* Modal / Popup */
     .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px;z-index:99}
     .modal-card{background:#10254b;border:2px solid var(--gold);border-radius:16px;max-width:700px;width:100%;padding:20px;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto}
-    .media-container img{max-width:100%;max-height:260px;border-radius:8px;margin-top:10px}
-    .media-container iframe{width:100%;height:250px;border:0;border-radius:8px;margin-top:10px}
+    .media-container img{max-width:100%;max-height:280px;border-radius:8px;margin-top:10px}
+    
+    /* Clean Video Container (Versteckt YouTube-Titelleiste) */
+    .clean-video-wrapper{position:relative;width:100%;height:280px;overflow:hidden;border-radius:12px;margin-top:10px;background:#000}
+    .clean-video-wrapper iframe{width:100%;height:380px;margin-top:-50px;border:0;pointer-events:auto}
+
+    /* Spoiler-freie Musik-Karte */
+    .music-spoiler-card{background:linear-gradient(135deg, #092047, #133878);border:2px solid var(--gold);border-radius:14px;padding:20px;margin-top:10px;display:flex;flex-direction:column;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+    .music-icon{font-size:48px;margin-bottom:8px;animation:pulse 2s infinite}
+    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
 
     /* Buzzer */
     .buzzer-btn{background:radial-gradient(circle,#ff4e50,#f9d423);color:#fff;font-size:28px;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.5);border:4px solid #fff;border-radius:50%;width:180px;height:180px;margin:20px auto;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(231,76,60,.6);cursor:pointer;user-select:none}
@@ -71,7 +79,7 @@
 <body class="theme-dunkelblau">
   <header>
     <h1>QUIZARENA LIVE</h1>
-    <p style="margin:4px 0 0;color:var(--muted);font-size:14px;">Deine Quiz-Plattform mit Profilbildern, Videos, Musik &amp; Siegertreppchen</p>
+    <p style="margin:4px 0 0;color:var(--muted);font-size:14px;">Deine Quiz-Plattform ohne Spoiler bei Musik &amp; Video!</p>
   </header>
 
   <main>
@@ -142,10 +150,7 @@
         </div>
       </div>
 
-      <!-- Live Scoreboard -->
       <div class="scoreboard" id="scoreboard"></div>
-
-      <!-- Jeopardy Board -->
       <div class="board" id="boardGrid"></div>
     </section>
   </main>
@@ -188,7 +193,6 @@
       
       <div class="podium-container" id="podiumContainer"></div>
 
-      <!-- Dankes-Text unter dem Siegertreppchen -->
       <div style="margin-top:24px;padding:12px;background:#07142d;border-radius:10px;color:var(--gold);font-weight:700;font-size:15px;border:1px solid var(--gold);">
         Ey korrekt, dass du Somayas Webseite benutzt hast, um ein Quiz zu erstellen! Danke bro! 🔥
       </div>
@@ -462,20 +466,26 @@
         let startSec = (parseInt(qData.startMin||0)*60) + parseInt(qData.startSec||0);
         let endSec = (parseInt(qData.endMin||0)*60) + parseInt(qData.endSec||0);
         
-        let timeParams = [];
+        let timeParams = ["controls=1", "modestbranding=1", "rel=0", "showinfo=0"];
         if (startSec > 0) timeParams.push("start=" + startSec);
         if (endSec > 0) timeParams.push("end=" + endSec);
-        if (timeParams.length > 0) embedUrl += (embedUrl.includes("?") ? "&" : "?") + timeParams.join("&");
+        embedUrl += (embedUrl.includes("?") ? "&" : "?") + timeParams.join("&");
 
-        modalMedia.innerHTML = `<iframe src="${embedUrl}" allow="autoplay; encrypted-media"></iframe>`;
+        // Clean Wrapper schneidet oberen Titel-Bereich von YouTube ab!
+        modalMedia.innerHTML = `<div class="clean-video-wrapper"><iframe src="${embedUrl}" allow="autoplay; encrypted-media"></iframe></div>`;
       } else if (qData.mediaType === "music" && qData.media) {
+        // Spoiler-Freie Musikkarte mit Musiknote!
         let musicUrl = qData.media;
         if (musicUrl.includes("spotify.com/track/")) {
           musicUrl = musicUrl.replace("spotify.com/track/", "spotify.com/embed/track/");
-          modalMedia.innerHTML = `<iframe src="${musicUrl}" style="height:100px;" allow="encrypted-media"></iframe>`;
-        } else {
-          modalMedia.innerHTML = `<audio controls autoplay src="${musicUrl}" style="width:100%;margin-top:10px;"></audio>`;
         }
+        modalMedia.innerHTML = `
+          <div class="music-spoiler-card">
+            <div class="music-icon">🎵</div>
+            <div style="font-weight:800;color:var(--gold);margin-bottom:10px;">Höre gut zu... Welches Lied ist das?</div>
+            <audio controls autoplay src="${musicUrl}" style="width:100%;max-width:350px;"></audio>
+          </div>
+        `;
       }
 
       if (buzzerWinner) {
@@ -591,7 +601,6 @@
                 <div class="m-tab" onclick="switchMediaTab(${c}, ${q}, 'music')">🎵 Music</div>
               </div>
 
-              <!-- IMAGE INPUT -->
               <div id="m_box_image_${c}_${q}">
                 <label style="background:#274475;color:#fff;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;display:block;text-align:center;">
                   📷 Galerie Foto auswählen
@@ -600,7 +609,6 @@
                 <input type="hidden" id="m_img_val_${c}_${q}">
               </div>
 
-              <!-- VIDEO INPUT (YouTube mit Start/Endzeit) -->
               <div id="m_box_video_${c}_${q}" style="display:none;">
                 <input type="text" id="m_vid_url_${c}_${q}" placeholder="YouTube-Link (z.B. https://youtu.be/...)">
                 <div style="display:flex;gap:6px;font-size:12px;align-items:center;">
@@ -613,9 +621,8 @@
                 </div>
               </div>
 
-              <!-- MUSIC INPUT (Spotify / MP3 Link) -->
               <div id="m_box_music_${c}_${q}" style="display:none;">
-                <input type="text" id="m_mus_url_${c}_${q}" placeholder="Spotify Track-Link oder MP3-URL">
+                <input type="text" id="m_mus_url_${c}_${q}" placeholder="MP3-URL oder Audio-Link">
               </div>
             </div>
           `;
@@ -686,7 +693,7 @@
 
       const quizId = "quiz_" + Date.now();
       await set(ref(db, 'custom_quizzes/' + quizId), { title, theme, categories });
-      alert("🎉 Dein Quiz mit Profilbildern, Video-Zeiten & Musik wurde gespeichert!");
+      alert("🎉 Dein Quiz wurde ohne Spoiler-Gefahr gespeichert!");
       loadSavedQuizzes();
       tabLobbyBtn.click();
     };
