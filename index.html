@@ -51,8 +51,8 @@
     .clean-video-wrapper{position:relative;width:100%;height:280px;overflow:hidden;border-radius:12px;margin-top:10px;background:#000}
     .clean-video-wrapper iframe{width:100%;height:380px;margin-top:-50px;border:0;pointer-events:auto}
 
-    /* Musik-Karte */
-    .music-spoiler-card{background:linear-gradient(135deg, #092047, #133878);border:2px solid var(--gold);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
+    /* Spoilerfreie Musik-Karte */
+    .music-spoiler-card{background:linear-gradient(135deg, #092047, #133878);border:2px solid var(--gold);border-radius:14px;padding:20px;margin-top:10px;display:flex;flex-direction:column;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 
     /* Buzzer */
     .buzzer-btn{background:radial-gradient(circle,#ff4e50,#f9d423);color:#fff;font-size:28px;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.5);border:4px solid #fff;border-radius:50%;width:180px;height:180px;margin:20px auto;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(231,76,60,.6);cursor:pointer;user-select:none}
@@ -477,19 +477,12 @@
 
         modalMedia.innerHTML = `<div class="clean-video-wrapper"><iframe src="${embedUrl}" allow="autoplay; encrypted-media"></iframe></div>`;
       } else if (qData.mediaType === "music" && qData.media) {
-        let musicUrl = qData.media;
-        if (musicUrl.includes("spotify.com/track/")) {
-          musicUrl = musicUrl.replace("spotify.com/track/", "spotify.com/embed/track/");
-        } else if (musicUrl.includes("spotify.com/playlist/")) {
-          musicUrl = musicUrl.replace("spotify.com/playlist/", "spotify.com/embed/playlist/");
-        }
-        
-        // HIER NUR NOCH "Hör gut zu..." OHNE "Welches Lied ist das?"
+        // Legaler, direkter HTML5 Audio-Player ohne fremde Einbettungs-APIs
         modalMedia.innerHTML = `
           <div class="music-spoiler-card">
             <div style="font-size:36px;margin-bottom:6px;">🎵</div>
-            <div style="font-weight:800;color:var(--gold);margin-bottom:10px;font-size:15px;">Hör gut zu...</div>
-            <iframe src="${musicUrl}?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:8px;"></iframe>
+            <div style="font-weight:800;color:var(--gold);margin-bottom:12px;font-size:15px;">Hör gut zu...</div>
+            <audio controls autoplay src="${qData.media}" style="width:100%;max-width:360px;border-radius:8px;"></audio>
           </div>
         `;
       }
@@ -627,7 +620,11 @@
               </div>
 
               <div id="m_box_music_${c}_${q}" style="display:none;">
-                <input type="text" id="m_mus_url_${c}_${q}" placeholder="Spotify Track-Link (z.B. https://open.spotify.com/track/...)">
+                <label style="background:#274475;color:#fff;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;display:block;text-align:center;margin-bottom:6px;">
+                  🎵 Audio-Datei aus Mediathek wählen
+                  <input type="file" accept="audio/*" style="display:none;" onchange="handleQAudioFile(event, ${c}, ${q})">
+                </label>
+                <input type="text" id="m_mus_url_${c}_${q}" placeholder="Oder direkter Audio-Link (.mp3 / .m4a)">
               </div>
             </div>
           `;
@@ -649,6 +646,17 @@
       reader.onload = function(e) {
         document.getElementById(`m_img_val_${c}_${q}`).value = e.target.result;
         alert("📷 Bild aus Galerie geladen!");
+      };
+      reader.readAsDataURL(file);
+    };
+
+    window.handleQAudioFile = function(event, c, q) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(e) {
+        document.getElementById(`m_mus_url_${c}_${q}`).value = e.target.result;
+        alert("🎵 Audio-Datei erfolgreich geladen!");
       };
       reader.readAsDataURL(file);
     };
@@ -700,7 +708,7 @@
       
       localStorage.setItem("my_private_quizzes", JSON.stringify(quizzes));
 
-      alert("🎉 Dein Quiz wurde privat auf deinem Gerät gespeichert!");
+      alert("🎉 Dein Quiz wurde rechtssicher auf deinem Gerät gespeichert!");
       loadSavedQuizzes();
       tabLobbyBtn.click();
     };
