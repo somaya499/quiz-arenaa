@@ -3,9 +3,14 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QuizArena – Deine eigene Quiz-Plattform</title>
+  <title>QuizArena – Deine Quiz-Plattform</title>
   <style>
-    :root{--bg:#08152f;--panel:#10254b;--tile:#174bba;--gold:#ffd65a;--text:#f7f9ff;--muted:#b9c8e8;--red:#e74c3c;--green:#2ecc71}
+    :root{--bg:#08152f;--panel:#10254b;--gold:#ffd65a;--text:#f7f9ff;--muted:#b9c8e8;--red:#e74c3c;--green:#2ecc71}
+    /* Dynamische Block-Farben */
+    body.theme-dunkelblau { --tile:#174bba; --tile-hover:#1c59e6; }
+    body.theme-rosa { --tile:#b83b82; --tile-hover:#d9479b; }
+    body.theme-hellgrün { --tile:#238c59; --tile-hover:#2cb372; }
+
     *{box-sizing:border-box}
     body{margin:0;background:radial-gradient(ellipse at top,#163a79,#08152f 68%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh}
     header{text-align:center;padding:16px 10px 4px}
@@ -27,8 +32,8 @@
     /* Jeopardy Board */
     .board{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
     .cat-head{background:#0b214a;border:1px solid #2f5494;border-radius:8px;padding:10px 4px;text-align:center;font-weight:700;font-size:14px;color:var(--gold);min-height:48px;display:flex;align-items:center;justify-content:center}
-    .tile{background:var(--tile);border:1px solid #3c6fd8;border-radius:8px;color:var(--gold);font-size:20px;font-weight:900;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s}
-    .tile:hover{transform:scale(1.03)}
+    .tile{background:var(--tile);border:1px solid rgba(255,255,255,0.2);border-radius:8px;color:var(--gold);font-size:20px;font-weight:900;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s,background .2s}
+    .tile:hover{background:var(--tile-hover);transform:scale(1.03)}
     .tile.used{background:#0a1730;color:#2c436d;border-color:#192e52;cursor:not-allowed}
 
     /* Scoreboard */
@@ -47,12 +52,20 @@
     .buzzer-btn{background:radial-gradient(circle,#ff4e50,#f9d423);color:#fff;font-size:28px;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.5);border:4px solid #fff;border-radius:50%;width:180px;height:180px;margin:20px auto;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(231,76,60,.6);cursor:pointer;user-select:none}
     .buzzer-btn:active{transform:scale(.92)}
     .buzzer-btn.disabled{background:#444;color:#888;border-color:#666;box-shadow:none;cursor:not-allowed}
+
+    /* Podest / Sieger-Animation */
+    .podium-container{display:flex;justify-content:center;align-items:flex-end;gap:15px;margin-top:30px;height:250px}
+    .podium-step{display:flex;flex-direction:column;align-items:center;width:90px;background:#173b70;border-top:4px solid var(--gold);border-radius:8px 8px 0 0;padding:10px;animation:slideUp .8s ease}
+    .podium-step.p1{height:200px;background:#1e4ea8;border-color:#ffd700}
+    .podium-step.p2{height:150px}
+    .podium-step.p3{height:110px}
+    @keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
   </style>
 </head>
-<body>
+<body class="theme-dunkelblau">
   <header>
     <h1>QUIZARENA LIVE</h1>
-    <p style="margin:4px 0 0;color:var(--muted);font-size:14px;">Deine eigenen Quizze. Dein Buzzer. Deine Friends.</p>
+    <p style="margin:4px 0 0;color:var(--muted);font-size:14px;">Deine Quiz-Plattform mit Sound, Medien &amp; Sieger-Podest</p>
   </header>
 
   <main>
@@ -82,12 +95,17 @@
       <div id="statusMsg" style="margin-top:10px;font-weight:600;color:var(--gold);"></div>
     </section>
 
-    <!-- TAB 2: QUIZ CREATOR (Eigene Fragen erstellen) -->
+    <!-- TAB 2: QUIZ CREATOR (Mit Farb-Wahl, Galerie & YouTube) -->
     <section id="tabCreator" class="panel" style="display:none;">
-      <h3>✏️ Neues Quiz erstellen &amp; speichern</h3>
-      <input type="text" id="newQuizTitle" placeholder="Quiz Titel (z.B. Somayas Pro Quiz)">
+      <h3>✏️ Neues Quiz erstellen</h3>
+      <input type="text" id="newQuizTitle" placeholder="Quiz Titel (z.B. Somayas Ultimatives Quiz)">
       
-      <p style="font-size:13px;color:var(--muted);">Füge 5 Kategorien ein mit je 5 Fragen (100 - 500 Punkte). Du kannst optional Bild-URLs oder YouTube-Links einfügen!</p>
+      <label style="font-size:13px;color:var(--muted);">Wähle die Farbe für deine Quiz-Blöcke:</label>
+      <select id="quizTheme" style="margin-bottom:14px;">
+        <option value="dunkelblau">Dunkelblau (Klassisch)</option>
+        <option value="rosa">Rosa (Stylisch)</option>
+        <option value="hellgrün">Hellgrün (Fresh)</option>
+      </select>
 
       <div id="editorCategories"></div>
 
@@ -98,7 +116,10 @@
     <section id="gameArea" class="panel" style="display:none;">
       <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
         <div><strong>Raum-Code:</strong> <span id="displayCode" style="color:var(--gold);font-weight:900;font-size:20px;letter-spacing:2px;"></span></div>
-        <div><strong>Deine Rolle:</strong> <span id="roleText" style="color:var(--gold);font-weight:700;"></span></div>
+        <div>
+          <button id="showPodiumBtn" class="btn-secondary" style="padding:6px 12px;font-size:13px;margin-right:8px;">🏆 Siegerehrung anzeigen</button>
+          <span id="roleText" style="color:var(--gold);font-weight:700;"></span>
+        </div>
       </div>
 
       <!-- Live Scoreboard -->
@@ -115,20 +136,17 @@
       <div id="modalPoints" style="color:var(--gold);font-size:14px;font-weight:800;"></div>
       <h2 id="modalQuestion" style="margin:10px 0;"></h2>
       
-      <!-- Medien Anzeige (Bild oder YouTube) -->
+      <!-- Medien (Bild aus Galerie oder YouTube) -->
       <div id="modalMedia" class="media-container"></div>
 
-      <!-- Buzzer-Status Info -->
       <div id="buzzerStatusInfo" style="margin-top:14px;font-weight:800;font-size:18px;color:var(--gold);">
         Warte auf Buzzer...
       </div>
 
-      <!-- BUZZER BUTTON (Für normale Mitspieler) -->
       <div id="buzzerContainer" style="display:none;">
         <button id="buzzerBtn" class="buzzer-btn">BUZZER!</button>
       </div>
 
-      <!-- Lösung & Punktevergabe (Nur für Host) -->
       <div id="hostControls" style="display:none;margin-top:16px;padding-top:12px;border-top:1px solid #274475;">
         <div id="modalAnswer" style="display:none;margin-bottom:12px;padding:10px;background:#08152f;border-radius:8px;color:#7ee7ac;font-weight:700;"></div>
         
@@ -140,6 +158,18 @@
           <button id="closeModalBtn" style="width:auto;">Frage schließen</button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- SIEGER PODIUM MODAL -->
+  <div class="modal-overlay" id="podiumModal">
+    <div class="modal-card" style="border-color:#ffd700;">
+      <h2 style="color:var(--gold);margin-top:0;">🏆 SIEGEHRUNG 🏆</h2>
+      <p style="color:var(--muted);">Herzlichen Glückwunsch an die Gewinner!</p>
+      
+      <div class="podium-container" id="podiumContainer"></div>
+
+      <button id="closePodiumBtn" class="btn-secondary" style="margin-top:24px;">Zurück zum Spiel</button>
     </div>
   </div>
 
@@ -160,60 +190,33 @@
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Standard-Quiz
+    // Soundeffekt erzeugen (Web Audio API - ganz ohne externe Dateien)
+    function playBuzzerSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.type = "square";
+        osc.frequency.setValueAtTime(440, ctx.currentTime);
+        osc.frequency.exponentialRampToValueAtTime(880, ctx.currentTime + 0.15);
+        gain.gain.setValueAtTime(0.2, ctx.currentTime);
+        gain.gain.exponentialRampToValueAtTime(0.01, ctx.currentTime + 0.15);
+        osc.connect(gain);
+        gain.connect(ctx.destination);
+        osc.start();
+        osc.stop(ctx.currentTime + 0.15);
+      } catch(e) {}
+    }
+
     const defaultQuiz = {
       title: "Standard Allround Quiz",
+      theme: "dunkelblau",
       categories: [
-        {
-          name: "Sport",
-          questions: [
-            { points: 100, q: "Wie viele Spieler hat ein Fußballteam auf dem Feld?", a: "11 Spieler" },
-            { points: 200, q: "Welches Land gewann die Fußball-WM 2014?", a: "Deutschland" },
-            { points: 300, q: "Wie viele Minuten hat ein Eishockey-Drittel?", a: "20 Minuten" },
-            { points: 400, q: "Wer ist dieser Sportler?", media: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Cristiano_Ronaldo_Ronaldo2018.jpg/480px-Cristiano_Ronaldo_Ronaldo2018.jpg", a: "Cristiano Ronaldo" },
-            { points: 500, q: "In welcher Stadt fanden die Olympischen Spiele 2024 statt?", a: "Paris" }
-          ]
-        },
-        {
-          name: "Musik",
-          questions: [
-            { points: 100, q: "Wie viele Saiten hat eine Gitarre?", a: "6 Saiten" },
-            { points: 200, q: "Welche Sängerin sang 'Shake It Off'?", a: "Taylor Swift" },
-            { points: 300, q: "Höre dir diesen Clip an: Welches Lied ist das?", media: "https://www.youtube.com/embed/fJ9rUzIMcZQ", a: "Queen - Bohemian Rhapsody" },
-            { points: 400, q: "Aus welcher Stadt stammten die Beatles?", a: "Liverpool" },
-            { points: 500, q: "In welchem Jahr erschien 'Thriller' von Michael Jackson?", a: "1982" }
-          ]
-        },
-        {
-          name: "Filme",
-          questions: [
-            { points: 100, q: "Welcher grüne Oger lebt im Sumpf?", a: "Shrek" },
-            { points: 200, q: "Wie heißt der Schneemann bei 'Die Eiskönigin'?", a: "Olaf" },
-            { points: 300, q: "Wie heißt der Schulleiter von Hogwarts?", a: "Dumbledore" },
-            { points: 400, q: "Welcher Marvel-Held hat einen Schild aus Vibranium?", a: "Captain America" },
-            { points: 500, q: "Wer führte Regie bei 'Avatar' & 'Titanic'?", a: "James Cameron" }
-          ]
-        },
-        {
-          name: "Geografie",
-          questions: [
-            { points: 100, q: "Was ist die Hauptstadt von Deutschland?", a: "Berlin" },
-            { points: 200, q: "Auf welchem Kontinent liegt Ägypten?", a: "Afrika" },
-            { points: 300, q: "Welcher ist der längste Fluss der Erde?", a: "Amazonas / Nil" },
-            { points: 400, q: "Zu welchem Land gehört die Insel Bali?", a: "Indonesien" },
-            { points: 500, q: "Welches ist das kleinste Land der Welt?", a: "Vatikanstadt" }
-          ]
-        },
-        {
-          name: "Gaming & Web",
-          questions: [
-            { points: 100, q: "Was ist das meistveraufte Videospiel der Welt?", a: "Minecraft" },
-            { points: 200, q: "Wofür steht 'LOL' im Chat?", a: "Laughing Out Loud" },
-            { points: 300, q: "Aus welchem fliegenden Fahrzeug springt man in Fortnite?", a: "Schlachtenbus / Battle Bus" },
-            { points: 400, q: "Wie heißt die Hauptfigur in 'The Legend of Zelda'?", a: "Link" },
-            { points: 500, q: "In welchem Jahr wurde YouTube gegründet?", a: "2005" }
-          ]
-        }
+        { name: "Sport", questions: [{points:100,q:"Fussballspieler?",a:"11"},{points:200,q:"WM 2014?",a:"Deutschland"},{points:300,q:"Eishockey Drittel?",a:"20 Min"},{points:400,q:"Sportart?",a:"Tennis"},{points:500,q:"Olympiastadt 2024?",a:"Paris"}] },
+        { name: "Musik", questions: [{points:100,q:"Gitarrensaiten?",a:"6"},{points:200,q:"Taylor Swift?",a:"Shake It Off"},{points:300,q:"Beatles Stadt?",a:"Liverpool"},{points:400,q:"Thriller Jahr?",a:"1982"},{points:500,q:"Klaviertasten?",a:"88"}] },
+        { name: "Filme", questions: [{points:100,q:"Oger im Sumpf?",a:"Shrek"},{points:200,q:"Eiskönigin?",a:"Olaf"},{points:300,q:"Schulleiter Hogwarts?",a:"Dumbledore"},{points:400,q:"Marvel Schild?",a:"Vibranium"},{points:500,q:"Avatar Regie?",a:"James Cameron"}] },
+        { name: "Geografie", questions: [{points:100,q:"Hauptstadt DE?",a:"Berlin"},{points:200,q:"Kontinent Ägypten?",a:"Afrika"},{points:300,q:"Längster Fluss?",a:"Amazonas"},{points:400,q:"Insel Bali?",a:"Indonesien"},{points:500,q:"Kleinster Staat?",a:"Vatikan"}] },
+        { name: "Gaming", questions: [{points:100,q:"Meistverkauft?",a:"Minecraft"},{points:200,q:"LOL Bedeutung?",a:"Laughing Out Loud"},{points:300,q:"Fortnite Bus?",a:"Schlachtenbus"},{points:400,q:"Zelda Held?",a:"Link"},{points:500,q:"YouTube Jahr?",a:"2005"}] }
       ]
     };
 
@@ -254,11 +257,14 @@
     const resetBuzzerBtn = document.getElementById("resetBuzzerBtn");
     const closeModalBtn = document.getElementById("closeModalBtn");
 
-    // Tab Navigation
+    const podiumModal = document.getElementById("podiumModal");
+    const podiumContainer = document.getElementById("podiumContainer");
+    const showPodiumBtn = document.getElementById("showPodiumBtn");
+    const closePodiumBtn = document.getElementById("closePodiumBtn");
+
     tabLobbyBtn.onclick = () => { tabLobby.style.display="block"; tabCreator.style.display="none"; tabLobbyBtn.classList.add("active"); tabCreatorBtn.classList.remove("active"); };
     tabCreatorBtn.onclick = () => { tabLobby.style.display="none"; tabCreator.style.display="block"; tabCreatorBtn.classList.add("active"); tabLobbyBtn.classList.remove("active"); buildEditorForm(); };
 
-    // Custom Quizze aus Firebase laden
     async function loadSavedQuizzes() {
       quizSelect.innerHTML = `<option value="default">Standard Allround Quiz</option>`;
       try {
@@ -272,9 +278,13 @@
             quizSelect.appendChild(opt);
           });
         }
-      } catch (e) { console.error(e); }
+      } catch (e) {}
     }
     loadSavedQuizzes();
+
+    function setTheme(themeName) {
+      document.body.className = "theme-" + (themeName || "dunkelblau");
+    }
 
     function genCode() {
       const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
@@ -282,7 +292,6 @@
       return c;
     }
 
-    // Raum Erstellen
     createBtn.onclick = async () => {
       const name = document.getElementById("hostName").value.trim() || "Spielleitung";
       const code = genCode();
@@ -290,13 +299,15 @@
       myPlayerName = name;
       statusMsg.innerText = "Erstelle Quizraum...";
 
-      const selectedQuizVal = quizSelect.value;
-      if (selectedQuizVal !== "default") {
-        const snap = await get(child(ref(db), 'custom_quizzes/' + selectedQuizVal));
+      const selectedVal = quizSelect.value;
+      if (selectedVal !== "default") {
+        const snap = await get(child(ref(db), 'custom_quizzes/' + selectedVal));
         if (snap.exists()) currentQuiz = snap.val();
       } else {
         currentQuiz = defaultQuiz;
       }
+
+      setTheme(currentQuiz.theme);
 
       await set(ref(db, 'rooms/' + code), {
         host: name,
@@ -305,17 +316,17 @@
         scores: {},
         activeQuestion: null,
         buzzerWinner: null,
-        usedTiles: {}
+        usedTiles: {},
+        showPodium: false
       });
 
       enterGame(code, name);
     };
 
-    // Raum Beitreten
     joinBtn.onclick = async () => {
       const name = document.getElementById("playerName").value.trim();
       const code = document.getElementById("joinCode").value.trim().toUpperCase();
-      if (!name || !code) return alert("Bitte gib deinen Namen und Spielcode ein!");
+      if (!name || !code) return alert("Bitte Name und Code eingeben!");
 
       isHost = false;
       myPlayerName = name;
@@ -325,13 +336,14 @@
       if (snap.exists()) {
         const room = snap.val();
         currentQuiz = room.quizData || defaultQuiz;
+        setTheme(currentQuiz.theme);
 
         const pKey = name.replace(/[^a-zA-Z0-9]/g, "_");
         await update(ref(db, `rooms/${code}/scores/${pKey}`), { name: name, score: 0 });
 
         enterGame(code, name);
       } else {
-        statusMsg.innerText = "❌ Spielcode nicht gefunden!";
+        statusMsg.innerText = "❌ Code nicht gefunden!";
       }
     };
 
@@ -346,12 +358,10 @@
 
       renderBoard();
 
-      // Synchronisation in Echtzeit
       onValue(ref(db, 'rooms/' + code), (snap) => {
         const data = snap.val();
         if (!data) return;
 
-        // Scoreboard Aktualisieren
         scoreboard.innerHTML = "";
         if (data.scores) {
           Object.values(data.scores).forEach(player => {
@@ -362,7 +372,6 @@
           });
         }
 
-        // Genutzte Felder sperren
         if (data.usedTiles) {
           Object.keys(data.usedTiles).forEach(tileId => {
             const btn = document.getElementById("tile-" + tileId);
@@ -370,7 +379,12 @@
           });
         }
 
-        // Fragen-Modal Sync
+        if (data.showPodium) {
+          showPodiumModal(data.scores);
+        } else {
+          podiumModal.style.display = "none";
+        }
+
         if (data.activeQuestion) {
           activeCatIdx = data.activeQuestion.catIdx;
           activeQIdx = data.activeQuestion.qIdx;
@@ -398,7 +412,7 @@
           tile.innerText = cat.questions[row].points;
 
           tile.onclick = () => {
-            if (!isHost) return alert("Nur die Spielleitung kann Fragen auswählen!");
+            if (!isHost) return;
             if (tile.classList.contains("used")) return;
 
             update(ref(db, 'rooms/' + currentRoomCode), {
@@ -422,13 +436,16 @@
 
       if (qData.media) {
         if (qData.media.includes("youtube.com") || qData.media.includes("youtu.be")) {
-          modalMedia.innerHTML = `<iframe src="${qData.media}?autoplay=1" allow="autoplay"></iframe>`;
+          // YouTube-Link automatisch in Embed umwandeln für Player-Startseite
+          let embedUrl = qData.media;
+          if (embedUrl.includes("watch?v=")) embedUrl = embedUrl.replace("watch?v=", "embed/");
+          if (embedUrl.includes("youtu.be/")) embedUrl = embedUrl.replace("youtu.be/", "www.youtube.com/embed/");
+          modalMedia.innerHTML = `<iframe src="${embedUrl}?autoplay=1" allow="autoplay; encrypted-media"></iframe>`;
         } else {
-          modalMedia.innerHTML = `<img src="${qData.media}" alt="Fragen-Bild">`;
+          modalMedia.innerHTML = `<img src="${qData.media}" alt="Bild">`;
         }
       }
 
-      // Buzzer Logik
       if (buzzerWinner) {
         buzzerStatusInfo.innerText = `🚨 ${buzzerWinner.name} HAT GEBUZZERT!`;
         buzzerStatusInfo.style.color = "#ffd65a";
@@ -450,18 +467,16 @@
       modal.style.display = "flex";
     }
 
-    // Buzzer Event für Spieler
     buzzerBtn.onclick = () => {
       if (buzzerBtn.classList.contains("disabled")) return;
+      playBuzzerSound();
       update(ref(db, `rooms/${currentRoomCode}`), {
         buzzerWinner: { name: myPlayerName, key: myPlayerName.replace(/[^a-zA-Z0-9]/g, "_") }
       });
     };
 
-    // Host Aktionen
     showAnswerBtn.onclick = () => { modalAnswer.style.display = "block"; };
 
-    // Richtig: Punkte geben
     awardPointsBtn.onclick = async () => {
       const snap = await get(child(ref(db), `rooms/${currentRoomCode}`));
       const data = snap.val();
@@ -470,14 +485,11 @@
         const currentScore = (data.scores && data.scores[pKey] && data.scores[pKey].score) || 0;
         const qPoints = currentQuiz.categories[activeCatIdx].questions[activeQIdx].points;
 
-        await update(ref(db, `rooms/${currentRoomCode}/scores/${pKey}`), {
-          score: currentScore + qPoints
-        });
+        await update(ref(db, `rooms/${currentRoomCode}/scores/${pKey}`), { score: currentScore + qPoints });
         update(ref(db, `rooms/${currentRoomCode}`), { activeQuestion: null });
       }
     };
 
-    // Falsch: Keine Minuspunkte, einfach Buzzer zurücksetzen!
     deductPointsBtn.onclick = () => {
       update(ref(db, `rooms/${currentRoomCode}`), { buzzerWinner: null });
     };
@@ -487,14 +499,49 @@
     };
 
     closeModalBtn.onclick = () => {
-      if (isHost) {
-        update(ref(db, `rooms/${currentRoomCode}`), { activeQuestion: null });
-      } else {
-        modal.style.display = "none";
-      }
+      if (isHost) update(ref(db, `rooms/${currentRoomCode}`), { activeQuestion: null });
+      else modal.style.display = "none";
     };
 
-    // CREATOR: Formular Generieren
+    // Siegerehrung anzeigen
+    showPodiumBtn.onclick = () => {
+      if (!isHost) return;
+      update(ref(db, `rooms/${currentRoomCode}`), { showPodium: true });
+    };
+
+    closePodiumBtn.onclick = () => {
+      if (isHost) update(ref(db, `rooms/${currentRoomCode}`), { showPodium: false });
+      else podiumModal.style.display = "none";
+    };
+
+    function showPodiumModal(scoresObj) {
+      podiumContainer.innerHTML = "";
+      if (!scoresObj) return;
+
+      const players = Object.values(scoresObj).sort((a,b) => (b.score||0) - (a.score||0));
+      
+      // Top 3 platzieren (falls vorhanden)
+      const top3 = [players[1], players[0], players[2]].filter(Boolean); // Anordnung: 2, 1, 3 für Podest
+      const ranks = [2, 1, 3];
+      const classes = ["p2", "p1", "p3"];
+
+      top3.forEach((p, idx) => {
+        const rank = ranks[idx];
+        const cls = classes[idx];
+        const step = document.createElement("div");
+        step.className = `podium-step ${cls}`;
+        step.innerHTML = `
+          <div style="font-weight:900;color:var(--gold);font-size:16px;">#${rank}</div>
+          <div style="font-weight:700;font-size:13px;margin:auto 0;text-align:center;">${p.name}</div>
+          <div style="font-size:12px;color:var(--muted);">${p.score||0} Pkt</div>
+        `;
+        podiumContainer.appendChild(step);
+      });
+
+      podiumModal.style.display = "flex";
+    }
+
+    // EDITOR FORMULAR (Mit Galerie Upload & YouTube)
     function buildEditorForm() {
       const container = document.getElementById("editorCategories");
       if (container.children.length > 0) return;
@@ -503,7 +550,7 @@
       for (let c = 0; c < 5; c++) {
         const catBox = document.createElement("div");
         catBox.style.cssText = "background:#07142d;border:1px solid #2f5494;padding:12px;border-radius:10px;margin-bottom:12px;";
-        catBox.innerHTML = `<h4>Kategorie ${c + 1}</h4><input type="text" id="catName_${c}" placeholder="Kategorie Name (z.B. Anime)">`;
+        catBox.innerHTML = `<h4>Kategorie ${c + 1}</h4><input type="text" id="catName_${c}" placeholder="Kategorie Name">`;
 
         for (let q = 0; q < 5; q++) {
           const pts = (q + 1) * 100;
@@ -512,7 +559,14 @@
               <strong>${pts} Punkte Frage:</strong>
               <input type="text" id="q_${c}_${q}" placeholder="Frage">
               <input type="text" id="a_${c}_${q}" placeholder="Antwort">
-              <input type="text" id="m_${c}_${q}" placeholder="Bild-URL oder YouTube-Link (optional)">
+              
+              <div style="display:flex;gap:6px;align-items:center;margin-top:4px;">
+                <input type="text" id="m_${c}_${q}" placeholder="YouTube-Link (optional)" style="margin-bottom:0;flex:2;">
+                <label style="background:#274475;color:#fff;padding:10px;border-radius:8px;cursor:pointer;font-size:12px;flex:1;text-align:center;">
+                  📷 Galerie Foto
+                  <input type="file" accept="image/*" id="file_${c}_${q}" style="display:none;" onchange="handleFileSelect(event, ${c}, ${q})">
+                </label>
+              </div>
             </div>
           `;
         }
@@ -520,9 +574,22 @@
       }
     }
 
+    // Bild aus Galerie in Base64 umwandeln, damit es direkt im Quiz gespeichert wird
+    window.handleFileSelect = function(event, c, q) {
+      const file = event.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = function(uploadEvent) {
+        document.getElementById(`m_${c}_${q}`).value = uploadEvent.target.result;
+        alert("📷 Bild erfolgreich aus Galerie geladen!");
+      };
+      reader.readAsDataURL(file);
+    };
+
     // Quiz Speichern
     document.getElementById("saveQuizBtn").onclick = async () => {
       const title = document.getElementById("newQuizTitle").value.trim();
+      const theme = document.getElementById("quizTheme").value;
       if (!title) return alert("Bitte gib dem Quiz einen Titel!");
 
       const categories = [];
@@ -532,7 +599,7 @@
         for (let q = 0; q < 5; q++) {
           questions.push({
             points: (q + 1) * 100,
-            q: document.getElementById(`q_${c}_${q}`).value.trim() || "Keine Frage angegeben",
+            q: document.getElementById(`q_${c}_${q}`).value.trim() || "Keine Frage",
             a: document.getElementById(`a_${c}_${q}`).value.trim() || "Keine Antwort",
             media: document.getElementById(`m_${c}_${q}`).value.trim() || ""
           });
@@ -541,8 +608,8 @@
       }
 
       const quizId = "quiz_" + Date.now();
-      await set(ref(db, 'custom_quizzes/' + quizId), { title, categories });
-      alert("🎉 Dein Quiz wurde erfolgreich gespeichert!");
+      await set(ref(db, 'custom_quizzes/' + quizId), { title, theme, categories });
+      alert("🎉 Dein Quiz mit Farbe & Medien wurde gespeichert!");
       loadSavedQuizzes();
       tabLobbyBtn.click();
     };
