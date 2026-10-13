@@ -3,71 +3,150 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>QuizShow Live – Quiz-Duell mit Freunden</title>
+  <title>QuizArena – Deine eigene Quiz-Plattform</title>
   <style>
-    :root{--bg:#08152f;--panel:#10254b;--tile:#174bba;--tile2:#103a91;--gold:#ffd65a;--text:#f7f9ff;--muted:#b9c8e8;--line:#345488}
-    *{box-sizing:border-box}body{margin:0;background:radial-gradient(ellipse at top,#163a79,#08152f 68%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh}
-    header{text-align:center;padding:20px 14px 8px}h1{color:var(--gold);font-size:clamp(28px,5vw,46px);margin:0;letter-spacing:.04em;text-shadow:0 3px 12px rgba(0,0,0,.4)}
-    main{max-width:1200px;margin:auto;padding:12px 14px 36px}.panel{background:#0c1d3b;border:1px solid #274475;border-radius:16px;padding:20px;margin-bottom:16px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
-    input,textarea,select{font:inherit;color:var(--text);background:#07142d;border:1px solid #41649c;border-radius:9px;padding:10px;width:100%}
-    button,.btn{border:0;border-radius:10px;padding:10px 18px;font-weight:800;cursor:pointer;background:var(--gold);color:#172344;font-size:15px;transition:transform .1s,opacity .2s}
+    :root{--bg:#08152f;--panel:#10254b;--tile:#174bba;--gold:#ffd65a;--text:#f7f9ff;--muted:#b9c8e8;--red:#e74c3c;--green:#2ecc71}
+    *{box-sizing:border-box}
+    body{margin:0;background:radial-gradient(ellipse at top,#163a79,#08152f 68%);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;min-height:100vh}
+    header{text-align:center;padding:16px 10px 4px}
+    h1{color:var(--gold);font-size:clamp(26px,4vw,40px);margin:0;letter-spacing:.04em;text-shadow:0 3px 12px rgba(0,0,0,.4)}
+    main{max-width:1150px;margin:auto;padding:12px 10px 36px}
+    .panel{background:#0c1d3b;border:1px solid #274475;border-radius:14px;padding:16px;margin-bottom:14px;box-shadow:0 8px 24px rgba(0,0,0,.3)}
+    input,textarea,select{font:inherit;color:var(--text);background:#07142d;border:1px solid #41649c;border-radius:8px;padding:10px;width:100%;margin-bottom:8px}
+    button,.btn{border:0;border-radius:8px;padding:10px 16px;font-weight:800;cursor:pointer;background:var(--gold);color:#172344;font-size:15px;transition:transform .1s,opacity .2s}
     button:hover{opacity:.9}button:active{transform:scale(.97)}
-    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+    .btn-secondary{background:#274475;color:#fff}
+    .btn-danger{background:var(--red);color:#fff}
+    .btn-success{background:var(--green);color:#fff}
+    .grid-2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
     @media(max-width:700px){.grid-2{grid-template-columns:1fr}}
-    .status{border-radius:999px;padding:6px 14px;background:#173b30;color:#a1f5d0;font-size:13px;display:inline-block;margin-top:8px}
-    .code-box{font-size:24px;font-weight:900;letter-spacing:4px;color:var(--gold);background:#07142d;padding:12px;border-radius:10px;text-align:center;margin:12px 0}
+    .tabs{display:flex;gap:8px;margin-bottom:12px}
+    .tab-btn{flex:1;background:#07142d;border:1px solid #274475;color:var(--muted);padding:10px;border-radius:8px;cursor:pointer;font-weight:700;text-align:center}
+    .tab-btn.active{background:var(--tile);color:#fff;border-color:var(--gold)}
+
+    /* Jeopardy Board */
+    .board{display:grid;grid-template-columns:repeat(5,1fr);gap:8px;margin-top:14px}
+    .cat-head{background:#0b214a;border:1px solid #2f5494;border-radius:8px;padding:10px 4px;text-align:center;font-weight:700;font-size:14px;color:var(--gold);min-height:48px;display:flex;align-items:center;justify-content:center}
+    .tile{background:var(--tile);border:1px solid #3c6fd8;border-radius:8px;color:var(--gold);font-size:20px;font-weight:900;aspect-ratio:4/3;display:flex;align-items:center;justify-content:center;cursor:pointer;transition:transform .1s}
+    .tile:hover{transform:scale(1.03)}
+    .tile.used{background:#0a1730;color:#2c436d;border-color:#192e52;cursor:not-allowed}
+
+    /* Scoreboard */
+    .scoreboard{display:flex;gap:10px;overflow-x:auto;padding-bottom:8px;margin-top:12px}
+    .score-card{background:#07142d;border:1px solid #2f5494;border-radius:10px;padding:10px 14px;min-width:130px;text-align:center}
+    .score-name{font-weight:700;font-size:14px;color:var(--muted)}
+    .score-pts{font-size:22px;font-weight:900;color:var(--gold);margin-top:2px}
+
+    /* Modal / Popup */
+    .modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.85);display:none;align-items:center;justify-content:center;padding:16px;z-index:99}
+    .modal-card{background:#10254b;border:2px solid var(--gold);border-radius:16px;max-width:700px;width:100%;padding:20px;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto}
+    .media-container img{max-width:100%;max-height:260px;border-radius:8px;margin-top:10px}
+    .media-container iframe{width:100%;height:250px;border:0;border-radius:8px;margin-top:10px}
+
+    /* Buzzer */
+    .buzzer-btn{background:radial-gradient(circle,#ff4e50,#f9d423);color:#fff;font-size:28px;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.5);border:4px solid #fff;border-radius:50%;width:180px;height:180px;margin:20px auto;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(231,76,60,.6);cursor:pointer;user-select:none}
+    .buzzer-btn:active{transform:scale(.92)}
+    .buzzer-btn.disabled{background:#444;color:#888;border-color:#666;box-shadow:none;cursor:not-allowed}
   </style>
 </head>
 <body>
   <header>
-    <h1>QUIZSHOW LIVE</h1>
-    <p>Dein Quiz-Duell. Deine Fragen. Deine Crew.</p>
+    <h1>QUIZARENA LIVE</h1>
+    <p style="margin:4px 0 0;color:var(--muted);font-size:14px;">Deine eigenen Quizze. Dein Buzzer. Deine Friends.</p>
   </header>
 
   <main>
-    <!-- Spiel starten / beitreten -->
-    <section id="setup" class="panel">
-      <h2>🚀 Spiel starten oder beitreten</h2>
-      
-      <div class="grid-2">
-        <!-- Raum erstellen -->
-        <div>
-          <h3>🎤 Neues Spiel erstellen</h3>
-          <label style="font-size:13px;color:var(--muted);">Dein Name (Spielleitung)</label>
-          <input type="text" id="hostName" value="Spielleitung" style="margin-top:4px;margin-bottom:12px;">
-          <button id="createBtn">Spiel erstellen</button>
-        </div>
+    <!-- Navigation Tabs -->
+    <div class="tabs" id="navTabs">
+      <div class="tab-btn active" id="tabLobbyBtn">🎮 Lobby</div>
+      <div class="tab-btn" id="tabCreatorBtn">✏️ Quiz-Editor</div>
+    </div>
 
-        <!-- Raum beitreten -->
+    <!-- TAB 1: LOBBY -->
+    <section id="tabLobby" class="panel">
+      <div class="grid-2">
+        <div>
+          <h3>🎤 Spiel als Spielleitung hosten</h3>
+          <input type="text" id="hostName" value="Spielleitung" placeholder="Dein Name">
+          <label style="font-size:12px;color:var(--muted);">Wähle ein Quiz aus:</label>
+          <select id="quizSelect" style="margin-top:4px;"></select>
+          <button id="createBtn" style="margin-top:6px;">Spielzimmer erstellen</button>
+        </div>
         <div>
           <h3>📱 Mit Spielcode beitreten</h3>
-          <label style="font-size:13px;color:var(--muted);">Dein Name</label>
-          <input type="text" id="playerName" placeholder="Dein Name" style="margin-top:4px;margin-bottom:8px;">
-          
-          <label style="font-size:13px;color:var(--muted);">Spielcode</label>
-          <input type="text" id="joinCode" placeholder="Z. B. K7P4Q" style="margin-top:4px;margin-bottom:12px;text-transform:uppercase;">
-          <button id="joinBtn">Beitreten</button>
+          <input type="text" id="playerName" placeholder="Dein Spieler-Name">
+          <input type="text" id="joinCode" placeholder="5-stelliger Code (z.B. JYKAA)" style="text-transform:uppercase;">
+          <button id="joinBtn" class="btn-secondary">Als Spieler beitreten</button>
         </div>
       </div>
-
-      <div id="statusMsg" style="margin-top:12px;font-weight:600;color:var(--gold);"></div>
+      <div id="statusMsg" style="margin-top:10px;font-weight:600;color:var(--gold);"></div>
     </section>
 
-    <!-- Raum Info (wird sichtbar wenn aktiv) -->
-    <section id="roomArea" class="panel" style="display:none;">
-      <h2>Lobby</h2>
-      <p>Teile diesen Spielcode mit deinen Freunden:</p>
-      <div class="code-box" id="displayCode">-----</div>
-      <div id="playerList"><strong>Mitspieler:</strong> <span id="playersText">Warte auf Spieler...</span></div>
+    <!-- TAB 2: QUIZ CREATOR (Eigene Fragen erstellen) -->
+    <section id="tabCreator" class="panel" style="display:none;">
+      <h3>✏️ Neues Quiz erstellen &amp; speichern</h3>
+      <input type="text" id="newQuizTitle" placeholder="Quiz Titel (z.B. Somayas Pro Quiz)">
+      
+      <p style="font-size:13px;color:var(--muted);">Füge 5 Kategorien ein mit je 5 Fragen (100 - 500 Punkte). Du kannst optional Bild-URLs oder YouTube-Links einfügen!</p>
+
+      <div id="editorCategories"></div>
+
+      <button id="saveQuizBtn" class="btn-success" style="margin-top:12px;">Quiz auf der Plattform speichern 💾</button>
+    </section>
+
+    <!-- GAME BOARD & MULTIPLAYER AREA -->
+    <section id="gameArea" class="panel" style="display:none;">
+      <div style="display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:10px;">
+        <div><strong>Raum-Code:</strong> <span id="displayCode" style="color:var(--gold);font-weight:900;font-size:20px;letter-spacing:2px;"></span></div>
+        <div><strong>Deine Rolle:</strong> <span id="roleText" style="color:var(--gold);font-weight:700;"></span></div>
+      </div>
+
+      <!-- Live Scoreboard -->
+      <div class="scoreboard" id="scoreboard"></div>
+
+      <!-- Jeopardy Board -->
+      <div class="board" id="boardGrid"></div>
     </section>
   </main>
 
-  <!-- Firebase SDK & Logik -->
+  <!-- FRAGEN POPUP & BUZZER MODAL -->
+  <div class="modal-overlay" id="questionModal">
+    <div class="modal-card">
+      <div id="modalPoints" style="color:var(--gold);font-size:14px;font-weight:800;"></div>
+      <h2 id="modalQuestion" style="margin:10px 0;"></h2>
+      
+      <!-- Medien Anzeige (Bild oder YouTube) -->
+      <div id="modalMedia" class="media-container"></div>
+
+      <!-- Buzzer-Status Info -->
+      <div id="buzzerStatusInfo" style="margin-top:14px;font-weight:800;font-size:18px;color:var(--gold);">
+        Warte auf Buzzer...
+      </div>
+
+      <!-- BUZZER BUTTON (Für normale Mitspieler) -->
+      <div id="buzzerContainer" style="display:none;">
+        <button id="buzzerBtn" class="buzzer-btn">BUZZER!</button>
+      </div>
+
+      <!-- Lösung & Punktevergabe (Nur für Host) -->
+      <div id="hostControls" style="display:none;margin-top:16px;padding-top:12px;border-top:1px solid #274475;">
+        <div id="modalAnswer" style="display:none;margin-bottom:12px;padding:10px;background:#08152f;border-radius:8px;color:#7ee7ac;font-weight:700;"></div>
+        
+        <div style="display:flex;gap:8px;justify-content:center;flex-wrap:wrap;">
+          <button id="showAnswerBtn" class="btn-secondary" style="width:auto;">Lösung anzeigen</button>
+          <button id="awardPointsBtn" class="btn-success" style="width:auto;display:none;">Richtig (+ Punkte)</button>
+          <button id="deductPointsBtn" class="btn-danger" style="width:auto;display:none;">Falsch (0 Pkt &amp; Reset)</button>
+          <button id="resetBuzzerBtn" class="btn-secondary" style="width:auto;">Buzzer resetten</button>
+          <button id="closeModalBtn" style="width:auto;">Frage schließen</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
     import { getDatabase, ref, set, get, child, onValue, update } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-database.js";
 
-    // Firebase Konfiguration
     const firebaseConfig = {
       apiKey: "AIzaSyBKpsb9QBZDn7oulxxcu0Ckziq74rjhrR8",
       authDomain: "quiz-duell-online.firebaseapp.com",
@@ -78,101 +157,395 @@
       appId: "1:350039999105:web:3120329d853687f6654380"
     };
 
-    // Firebase Initialisieren
     const app = initializeApp(firebaseConfig);
     const db = getDatabase(app);
 
-    // Code Generator
-    function generateCode() {
-      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
-      let code = "";
-      for (let i = 0; i < 5; i++) {
-        code += chars.charAt(Math.floor(Math.random() * chars.length));
-      }
-      return code;
-    }
-
-    // Dom Elemente
-    const createBtn = document.getElementById("createBtn");
-    const joinBtn = document.getElementById("joinBtn");
-    const statusMsg = document.getElementById("statusMsg");
-    const setupSection = document.getElementById("setup");
-    const roomArea = document.getElementById("roomArea");
-    const displayCode = document.getElementById("displayCode");
-    const playersText = document.getElementById("playersText");
-
-    // Raum erstellen
-    createBtn.onclick = async () => {
-      const hostName = document.getElementById("hostName").value.trim() || "Spielleitung";
-      const roomCode = generateCode();
-
-      statusMsg.innerText = "Erstelle Raum...";
-
-      try {
-        await set(ref(db, 'rooms/' + roomCode), {
-          host: hostName,
-          created: Date.now(),
-          players: {
-            host: hostName
-          }
-        });
-
-        enterRoom(roomCode, hostName);
-      } catch (err) {
-        statusMsg.innerText = "Fehler beim Erstellen: " + err.message;
-      }
+    // Standard-Quiz
+    const defaultQuiz = {
+      title: "Standard Allround Quiz",
+      categories: [
+        {
+          name: "Sport",
+          questions: [
+            { points: 100, q: "Wie viele Spieler hat ein Fußballteam auf dem Feld?", a: "11 Spieler" },
+            { points: 200, q: "Welches Land gewann die Fußball-WM 2014?", a: "Deutschland" },
+            { points: 300, q: "Wie viele Minuten hat ein Eishockey-Drittel?", a: "20 Minuten" },
+            { points: 400, q: "Wer ist dieser Sportler?", media: "https://upload.wikimedia.org/wikipedia/commons/thumb/d/d7/Cristiano_Ronaldo_Ronaldo2018.jpg/480px-Cristiano_Ronaldo_Ronaldo2018.jpg", a: "Cristiano Ronaldo" },
+            { points: 500, q: "In welcher Stadt fanden die Olympischen Spiele 2024 statt?", a: "Paris" }
+          ]
+        },
+        {
+          name: "Musik",
+          questions: [
+            { points: 100, q: "Wie viele Saiten hat eine Gitarre?", a: "6 Saiten" },
+            { points: 200, q: "Welche Sängerin sang 'Shake It Off'?", a: "Taylor Swift" },
+            { points: 300, q: "Höre dir diesen Clip an: Welches Lied ist das?", media: "https://www.youtube.com/embed/fJ9rUzIMcZQ", a: "Queen - Bohemian Rhapsody" },
+            { points: 400, q: "Aus welcher Stadt stammten die Beatles?", a: "Liverpool" },
+            { points: 500, q: "In welchem Jahr erschien 'Thriller' von Michael Jackson?", a: "1982" }
+          ]
+        },
+        {
+          name: "Filme",
+          questions: [
+            { points: 100, q: "Welcher grüne Oger lebt im Sumpf?", a: "Shrek" },
+            { points: 200, q: "Wie heißt der Schneemann bei 'Die Eiskönigin'?", a: "Olaf" },
+            { points: 300, q: "Wie heißt der Schulleiter von Hogwarts?", a: "Dumbledore" },
+            { points: 400, q: "Welcher Marvel-Held hat einen Schild aus Vibranium?", a: "Captain America" },
+            { points: 500, q: "Wer führte Regie bei 'Avatar' & 'Titanic'?", a: "James Cameron" }
+          ]
+        },
+        {
+          name: "Geografie",
+          questions: [
+            { points: 100, q: "Was ist die Hauptstadt von Deutschland?", a: "Berlin" },
+            { points: 200, q: "Auf welchem Kontinent liegt Ägypten?", a: "Afrika" },
+            { points: 300, q: "Welcher ist der längste Fluss der Erde?", a: "Amazonas / Nil" },
+            { points: 400, q: "Zu welchem Land gehört die Insel Bali?", a: "Indonesien" },
+            { points: 500, q: "Welches ist das kleinste Land der Welt?", a: "Vatikanstadt" }
+          ]
+        },
+        {
+          name: "Gaming & Web",
+          questions: [
+            { points: 100, q: "Was ist das meistveraufte Videospiel der Welt?", a: "Minecraft" },
+            { points: 200, q: "Wofür steht 'LOL' im Chat?", a: "Laughing Out Loud" },
+            { points: 300, q: "Aus welchem fliegenden Fahrzeug springt man in Fortnite?", a: "Schlachtenbus / Battle Bus" },
+            { points: 400, q: "Wie heißt die Hauptfigur in 'The Legend of Zelda'?", a: "Link" },
+            { points: 500, q: "In welchem Jahr wurde YouTube gegründet?", a: "2005" }
+          ]
+        }
+      ]
     };
 
-    // Raum beitreten
+    let currentQuiz = defaultQuiz;
+    let currentRoomCode = null;
+    let isHost = false;
+    let myPlayerName = "";
+    let activeCatIdx = null;
+    let activeQIdx = null;
+
+    // Elements
+    const tabLobbyBtn = document.getElementById("tabLobbyBtn");
+    const tabCreatorBtn = document.getElementById("tabCreatorBtn");
+    const tabLobby = document.getElementById("tabLobby");
+    const tabCreator = document.getElementById("tabCreator");
+    const quizSelect = document.getElementById("quizSelect");
+    const statusMsg = document.getElementById("statusMsg");
+    const createBtn = document.getElementById("createBtn");
+    const joinBtn = document.getElementById("joinBtn");
+    const gameArea = document.getElementById("gameArea");
+    const displayCode = document.getElementById("displayCode");
+    const roleText = document.getElementById("roleText");
+    const scoreboard = document.getElementById("scoreboard");
+    const boardGrid = document.getElementById("boardGrid");
+
+    const modal = document.getElementById("questionModal");
+    const modalPoints = document.getElementById("modalPoints");
+    const modalQuestion = document.getElementById("modalQuestion");
+    const modalMedia = document.getElementById("modalMedia");
+    const buzzerStatusInfo = document.getElementById("buzzerStatusInfo");
+    const buzzerContainer = document.getElementById("buzzerContainer");
+    const buzzerBtn = document.getElementById("buzzerBtn");
+    const hostControls = document.getElementById("hostControls");
+    const modalAnswer = document.getElementById("modalAnswer");
+    const showAnswerBtn = document.getElementById("showAnswerBtn");
+    const awardPointsBtn = document.getElementById("awardPointsBtn");
+    const deductPointsBtn = document.getElementById("deductPointsBtn");
+    const resetBuzzerBtn = document.getElementById("resetBuzzerBtn");
+    const closeModalBtn = document.getElementById("closeModalBtn");
+
+    // Tab Navigation
+    tabLobbyBtn.onclick = () => { tabLobby.style.display="block"; tabCreator.style.display="none"; tabLobbyBtn.classList.add("active"); tabCreatorBtn.classList.remove("active"); };
+    tabCreatorBtn.onclick = () => { tabLobby.style.display="none"; tabCreator.style.display="block"; tabCreatorBtn.classList.add("active"); tabLobbyBtn.classList.remove("active"); buildEditorForm(); };
+
+    // Custom Quizze aus Firebase laden
+    async function loadSavedQuizzes() {
+      quizSelect.innerHTML = `<option value="default">Standard Allround Quiz</option>`;
+      try {
+        const snap = await get(child(ref(db), 'custom_quizzes'));
+        if (snap.exists()) {
+          const quizzes = snap.val();
+          Object.keys(quizzes).forEach(key => {
+            const opt = document.createElement("option");
+            opt.value = key;
+            opt.innerText = quizzes[key].title;
+            quizSelect.appendChild(opt);
+          });
+        }
+      } catch (e) { console.error(e); }
+    }
+    loadSavedQuizzes();
+
+    function genCode() {
+      const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789";
+      let c = ""; for (let i = 0; i < 5; i++) c += chars.charAt(Math.floor(Math.random() * chars.length));
+      return c;
+    }
+
+    // Raum Erstellen
+    createBtn.onclick = async () => {
+      const name = document.getElementById("hostName").value.trim() || "Spielleitung";
+      const code = genCode();
+      isHost = true;
+      myPlayerName = name;
+      statusMsg.innerText = "Erstelle Quizraum...";
+
+      const selectedQuizVal = quizSelect.value;
+      if (selectedQuizVal !== "default") {
+        const snap = await get(child(ref(db), 'custom_quizzes/' + selectedQuizVal));
+        if (snap.exists()) currentQuiz = snap.val();
+      } else {
+        currentQuiz = defaultQuiz;
+      }
+
+      await set(ref(db, 'rooms/' + code), {
+        host: name,
+        created: Date.now(),
+        quizData: currentQuiz,
+        scores: {},
+        activeQuestion: null,
+        buzzerWinner: null,
+        usedTiles: {}
+      });
+
+      enterGame(code, name);
+    };
+
+    // Raum Beitreten
     joinBtn.onclick = async () => {
       const name = document.getElementById("playerName").value.trim();
       const code = document.getElementById("joinCode").value.trim().toUpperCase();
+      if (!name || !code) return alert("Bitte gib deinen Namen und Spielcode ein!");
 
-      if (!name) {
-        alert("Bitte gib deinen Namen ein!");
-        return;
-      }
-      if (!code) {
-        alert("Bitte gib einen Spielcode ein!");
-        return;
-      }
+      isHost = false;
+      myPlayerName = name;
+      statusMsg.innerText = "Verbinde...";
 
-      statusMsg.innerText = "Suche Raum...";
+      const snap = await get(child(ref(db), 'rooms/' + code));
+      if (snap.exists()) {
+        const room = snap.val();
+        currentQuiz = room.quizData || defaultQuiz;
 
-      try {
-        const snapshot = await get(child(ref(db), 'rooms/' + code));
-        if (snapshot.exists()) {
-          // Spieler hinzufügen
-          const playerKey = name.replace(/[^a-zA-Z0-9]/g, "_");
-          await update(ref(db, 'rooms/' + code + '/players'), {
-            [playerKey]: name
-          });
+        const pKey = name.replace(/[^a-zA-Z0-9]/g, "_");
+        await update(ref(db, `rooms/${code}/scores/${pKey}`), { name: name, score: 0 });
 
-          enterRoom(code, name);
-        } else {
-          statusMsg.innerText = "❌ Spielcode nicht gefunden!";
-        }
-      } catch (err) {
-        statusMsg.innerText = "Fehler beim Beitreten: " + err.message;
+        enterGame(code, name);
+      } else {
+        statusMsg.innerText = "❌ Spielcode nicht gefunden!";
       }
     };
 
-    // Raum betreten und Live-Daten hören
-    function enterRoom(code, myName) {
-      statusMsg.innerText = "Verbunden!";
+    function enterGame(code, name) {
+      currentRoomCode = code;
+      tabLobby.style.display = "none";
+      tabCreator.style.display = "none";
+      document.getElementById("navTabs").style.display = "none";
+      gameArea.style.display = "block";
       displayCode.innerText = code;
-      roomArea.style.display = "block";
+      roleText.innerText = isHost ? "🎤 Spielleitung" : "📱 Spieler (" + name + ")";
 
-      // Live-Updates empfangen
-      const roomRef = ref(db, 'rooms/' + code);
-      onValue(roomRef, (snapshot) => {
-        const data = snapshot.val();
-        if (data && data.players) {
-          const list = Object.values(data.players).join(", ");
-          playersText.innerText = list;
+      renderBoard();
+
+      // Synchronisation in Echtzeit
+      onValue(ref(db, 'rooms/' + code), (snap) => {
+        const data = snap.val();
+        if (!data) return;
+
+        // Scoreboard Aktualisieren
+        scoreboard.innerHTML = "";
+        if (data.scores) {
+          Object.values(data.scores).forEach(player => {
+            const card = document.createElement("div");
+            card.className = "score-card";
+            card.innerHTML = `<div class="score-name">${player.name}</div><div class="score-pts">${player.score || 0} Pkt</div>`;
+            scoreboard.appendChild(card);
+          });
+        }
+
+        // Genutzte Felder sperren
+        if (data.usedTiles) {
+          Object.keys(data.usedTiles).forEach(tileId => {
+            const btn = document.getElementById("tile-" + tileId);
+            if (btn) { btn.classList.add("used"); btn.innerText = "✓"; }
+          });
+        }
+
+        // Fragen-Modal Sync
+        if (data.activeQuestion) {
+          activeCatIdx = data.activeQuestion.catIdx;
+          activeQIdx = data.activeQuestion.qIdx;
+          openQuestionModal(activeCatIdx, activeQIdx, data.buzzerWinner);
+        } else {
+          modal.style.display = "none";
         }
       });
     }
+
+    function renderBoard() {
+      boardGrid.innerHTML = "";
+      currentQuiz.categories.forEach(cat => {
+        const head = document.createElement("div");
+        head.className = "cat-head";
+        head.innerText = cat.name;
+        boardGrid.appendChild(head);
+      });
+
+      for (let row = 0; row < 5; row++) {
+        currentQuiz.categories.forEach((cat, catIdx) => {
+          const tile = document.createElement("div");
+          tile.className = "tile";
+          tile.id = `tile-${catIdx}-${row}`;
+          tile.innerText = cat.questions[row].points;
+
+          tile.onclick = () => {
+            if (!isHost) return alert("Nur die Spielleitung kann Fragen auswählen!");
+            if (tile.classList.contains("used")) return;
+
+            update(ref(db, 'rooms/' + currentRoomCode), {
+              activeQuestion: { catIdx, qIdx: row },
+              buzzerWinner: null,
+              [`usedTiles/${catIdx}-${row}`]: true
+            });
+          };
+
+          boardGrid.appendChild(tile);
+        });
+      }
+    }
+
+    function openQuestionModal(catIdx, qIdx, buzzerWinner) {
+      const qData = currentQuiz.categories[catIdx].questions[qIdx];
+      modalPoints.innerText = `${currentQuiz.categories[catIdx].name} – ${qData.points} Punkte`;
+      modalQuestion.innerText = qData.q;
+      modalAnswer.innerText = "Lösung: " + qData.a;
+      modalMedia.innerHTML = "";
+
+      if (qData.media) {
+        if (qData.media.includes("youtube.com") || qData.media.includes("youtu.be")) {
+          modalMedia.innerHTML = `<iframe src="${qData.media}?autoplay=1" allow="autoplay"></iframe>`;
+        } else {
+          modalMedia.innerHTML = `<img src="${qData.media}" alt="Fragen-Bild">`;
+        }
+      }
+
+      // Buzzer Logik
+      if (buzzerWinner) {
+        buzzerStatusInfo.innerText = `🚨 ${buzzerWinner.name} HAT GEBUZZERT!`;
+        buzzerStatusInfo.style.color = "#ffd65a";
+        buzzerBtn.classList.add("disabled");
+        if (isHost) {
+          awardPointsBtn.style.display = "inline-block";
+          deductPointsBtn.style.display = "inline-block";
+        }
+      } else {
+        buzzerStatusInfo.innerText = "🔔 Wer weiß es? Jetzt buzzern!";
+        buzzerStatusInfo.style.color = "#b9c8e8";
+        buzzerBtn.classList.remove("disabled");
+        awardPointsBtn.style.display = "none";
+        deductPointsBtn.style.display = "none";
+      }
+
+      buzzerContainer.style.display = isHost ? "none" : "block";
+      hostControls.style.display = isHost ? "block" : "none";
+      modal.style.display = "flex";
+    }
+
+    // Buzzer Event für Spieler
+    buzzerBtn.onclick = () => {
+      if (buzzerBtn.classList.contains("disabled")) return;
+      update(ref(db, `rooms/${currentRoomCode}`), {
+        buzzerWinner: { name: myPlayerName, key: myPlayerName.replace(/[^a-zA-Z0-9]/g, "_") }
+      });
+    };
+
+    // Host Aktionen
+    showAnswerBtn.onclick = () => { modalAnswer.style.display = "block"; };
+
+    // Richtig: Punkte geben
+    awardPointsBtn.onclick = async () => {
+      const snap = await get(child(ref(db), `rooms/${currentRoomCode}`));
+      const data = snap.val();
+      if (data && data.buzzerWinner) {
+        const pKey = data.buzzerWinner.key;
+        const currentScore = (data.scores && data.scores[pKey] && data.scores[pKey].score) || 0;
+        const qPoints = currentQuiz.categories[activeCatIdx].questions[activeQIdx].points;
+
+        await update(ref(db, `rooms/${currentRoomCode}/scores/${pKey}`), {
+          score: currentScore + qPoints
+        });
+        update(ref(db, `rooms/${currentRoomCode}`), { activeQuestion: null });
+      }
+    };
+
+    // Falsch: Keine Minuspunkte, einfach Buzzer zurücksetzen!
+    deductPointsBtn.onclick = () => {
+      update(ref(db, `rooms/${currentRoomCode}`), { buzzerWinner: null });
+    };
+
+    resetBuzzerBtn.onclick = () => {
+      update(ref(db, `rooms/${currentRoomCode}`), { buzzerWinner: null });
+    };
+
+    closeModalBtn.onclick = () => {
+      if (isHost) {
+        update(ref(db, `rooms/${currentRoomCode}`), { activeQuestion: null });
+      } else {
+        modal.style.display = "none";
+      }
+    };
+
+    // CREATOR: Formular Generieren
+    function buildEditorForm() {
+      const container = document.getElementById("editorCategories");
+      if (container.children.length > 0) return;
+
+      container.innerHTML = "";
+      for (let c = 0; c < 5; c++) {
+        const catBox = document.createElement("div");
+        catBox.style.cssText = "background:#07142d;border:1px solid #2f5494;padding:12px;border-radius:10px;margin-bottom:12px;";
+        catBox.innerHTML = `<h4>Kategorie ${c + 1}</h4><input type="text" id="catName_${c}" placeholder="Kategorie Name (z.B. Anime)">`;
+
+        for (let q = 0; q < 5; q++) {
+          const pts = (q + 1) * 100;
+          catBox.innerHTML += `
+            <div style="margin-top:8px;padding-left:8px;border-left:2px solid var(--gold);">
+              <strong>${pts} Punkte Frage:</strong>
+              <input type="text" id="q_${c}_${q}" placeholder="Frage">
+              <input type="text" id="a_${c}_${q}" placeholder="Antwort">
+              <input type="text" id="m_${c}_${q}" placeholder="Bild-URL oder YouTube-Link (optional)">
+            </div>
+          `;
+        }
+        container.appendChild(catBox);
+      }
+    }
+
+    // Quiz Speichern
+    document.getElementById("saveQuizBtn").onclick = async () => {
+      const title = document.getElementById("newQuizTitle").value.trim();
+      if (!title) return alert("Bitte gib dem Quiz einen Titel!");
+
+      const categories = [];
+      for (let c = 0; c < 5; c++) {
+        const catName = document.getElementById(`catName_${c}`).value.trim() || `Kategorie ${c+1}`;
+        const questions = [];
+        for (let q = 0; q < 5; q++) {
+          questions.push({
+            points: (q + 1) * 100,
+            q: document.getElementById(`q_${c}_${q}`).value.trim() || "Keine Frage angegeben",
+            a: document.getElementById(`a_${c}_${q}`).value.trim() || "Keine Antwort",
+            media: document.getElementById(`m_${c}_${q}`).value.trim() || ""
+          });
+        }
+        categories.push({ name: catName, questions });
+      }
+
+      const quizId = "quiz_" + Date.now();
+      await set(ref(db, 'custom_quizzes/' + quizId), { title, categories });
+      alert("🎉 Dein Quiz wurde erfolgreich gespeichert!");
+      loadSavedQuizzes();
+      tabLobbyBtn.click();
+    };
   </script>
 </body>
 </html>
