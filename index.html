@@ -47,14 +47,12 @@
     .modal-card{background:#10254b;border:2px solid var(--gold);border-radius:16px;max-width:700px;width:100%;padding:20px;text-align:center;box-shadow:0 12px 32px rgba(0,0,0,.6);max-height:90vh;overflow-y:auto}
     .media-container img{max-width:100%;max-height:280px;border-radius:8px;margin-top:10px}
     
-    /* Clean Video Container (Versteckt YouTube-Titelleiste) */
+    /* Clean Video Container */
     .clean-video-wrapper{position:relative;width:100%;height:280px;overflow:hidden;border-radius:12px;margin-top:10px;background:#000}
     .clean-video-wrapper iframe{width:100%;height:380px;margin-top:-50px;border:0;pointer-events:auto}
 
-    /* Spoiler-freie Musik-Karte */
-    .music-spoiler-card{background:linear-gradient(135deg, #092047, #133878);border:2px solid var(--gold);border-radius:14px;padding:20px;margin-top:10px;display:flex;flex-direction:column;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
-    .music-icon{font-size:48px;margin-bottom:8px;animation:pulse 2s infinite}
-    @keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.1)}}
+    /* Musik-Karte */
+    .music-spoiler-card{background:linear-gradient(135deg, #092047, #133878);border:2px solid var(--gold);border-radius:14px;padding:15px;margin-top:10px;display:flex;flex-direction:column;align-items:center;box-shadow:0 6px 18px rgba(0,0,0,.4)}
 
     /* Buzzer */
     .buzzer-btn{background:radial-gradient(circle,#ff4e50,#f9d423);color:#fff;font-size:28px;font-weight:900;text-shadow:0 2px 4px rgba(0,0,0,.5);border:4px solid #fff;border-radius:50%;width:180px;height:180px;margin:20px auto;display:flex;align-items:center;justify-content:center;box-shadow:0 10px 30px rgba(231,76,60,.6);cursor:pointer;user-select:none}
@@ -70,7 +68,6 @@
     .podium-avatar{width:50px;height:50px;border-radius:50%;object-fit:cover;border:2px solid var(--gold);margin-bottom:6px;background:#07142d}
     @keyframes slideUp{from{transform:translateY(50px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-    /* Media Selector Tabs im Editor */
     .media-tabs{display:flex;gap:6px;margin:8px 0}
     .m-tab{flex:1;background:#07142d;border:1px solid #274475;color:var(--muted);padding:6px;border-radius:6px;font-size:12px;cursor:pointer;text-align:center}
     .m-tab.active{background:var(--tile);color:#fff;border-color:var(--gold)}
@@ -79,7 +76,7 @@
 <body class="theme-dunkelblau">
   <header>
     <h1>QUIZARENA LIVE</h1>
-    <p style="margin:4px 0 0;color:var(--muted);font-size:14px;">Deine Quiz-Plattform ohne Spoiler bei Musik &amp; Video!</p>
+    <p style="margin:4px 0 0;color:var(--muted);font-size:14px;">Deine private Quiz-Plattform!</p>
   </header>
 
   <main>
@@ -137,7 +134,7 @@
 
       <div id="editorCategories"></div>
 
-      <button id="saveQuizBtn" class="btn-success" style="margin-top:12px;">Quiz auf der Plattform speichern 💾</button>
+      <button id="saveQuizBtn" class="btn-success" style="margin-top:12px;">Quiz nur auf meinem Gerät speichern 💾</button>
     </section>
 
     <!-- GAME BOARD & MULTIPLAYER AREA -->
@@ -258,11 +255,11 @@
       title: "Standard Allround Quiz",
       theme: "dunkelblau",
       categories: [
-        { name: "Sport", questions: [{points:100,q:"Fussballspieler?",a:"11"},{points:200,q:"WM 2014?",a:"Deutschland"},{points:300,q:"Eishockey Drittel?",a:"20 Min"},{points:400,q:"Sportart?",a:"Tennis"},{points:500,q:"Olympiastadt 2024?",a:"Paris"}] },
-        { name: "Musik", questions: [{points:100,q:"Gitarrensaiten?",a:"6"},{points:200,q:"Taylor Swift?",a:"Shake It Off"},{points:300,q:"Beatles Stadt?",a:"Liverpool"},{points:400,q:"Thriller Jahr?",a:"1982"},{points:500,q:"Klaviertasten?",a:"88"}] },
-        { name: "Filme", questions: [{points:100,q:"Oger im Sumpf?",a:"Shrek"},{points:200,q:"Eiskönigin?",a:"Olaf"},{points:300,q:"Schulleiter Hogwarts?",a:"Dumbledore"},{points:400,q:"Marvel Schild?",a:"Vibranium"},{points:500,q:"Avatar Regie?",a:"James Cameron"}] },
-        { name: "Geografie", questions: [{points:100,q:"Hauptstadt DE?",a:"Berlin"},{points:200,q:"Kontinent Ägypten?",a:"Afrika"},{points:300,q:"Längster Fluss?",a:"Amazonas"},{points:400,q:"Insel Bali?",a:"Indonesien"},{points:500,q:"Kleinster Staat?",a:"Vatikan"}] },
-        { name: "Gaming", questions: [{points:100,q:"Meistverkauft?",a:"Minecraft"},{points:200,q:"LOL Bedeutung?",a:"Laughing Out Loud"},{points:300,q:"Fortnite Bus?",a:"Schlachtenbus"},{points:400,q:"Zelda Held?",a:"Link"},{points:500,q:"YouTube Jahr?",a:"2005"}] }
+        { name: "Sport", questions: [{points:100,q:"Wie viele Spieler stehen bei einem Fußballspiel pro Team auf dem Platz?",a:"11 Spieler"},{points:200,q:"Welches Land gewann die Fußball-WM 2014?",a:"Deutschland"},{points:300,q:"Wie viele Minuten dauert ein reguläres Eishockey-Drittel?",a:"20 Minuten"},{points:400,q:"In welcher Sportart gibt es den Begriff 'Love' für 0 Punkte?",a:"Tennis"},{points:500,q:"In welcher Stadt fanden die Olympischen Sommerspiele 2024 statt?",a:"Paris"}] },
+        { name: "Musik", questions: [{points:100,q:"Wie viele Saiten hat eine klassische Gitarre?",a:"6 Saiten"},{points:200,q:"Welche Sängerin veröffentlichte den Hit 'Shake It Off'?",a:"Taylor Swift"},{points:300,q:"Aus welcher englischen Stadt stammten die Beatles?",a:"Liverpool"},{points:400,q:"In welchem Jahr erschien der Hit 'Thriller' von Michael Jackson?",a:"1982"},{points:500,q:"Wie viele Tasten hat ein normales Klavier?",a:"88 Tasten"}] },
+        { name: "Filme", questions: [{points:100,q:"Welcher grüne Oger lebt in einem Sumpf?",a:"Shrek"},{points:200,q:"Wie heißt der sprechende Schneemann aus 'Die Eiskönigin'?",a:"Olaf"},{points:300,q:"Wie heißt der Schulleiter von Hogwarts in Harry Potter?",a:"Albus Dumbledore"},{points:400,q:"Aus welchem Metall besteht der Schild von Captain America?",a:"Vibranium"},{points:500,q:"Wer führte Regie bei 'Avatar' und 'Titanic'?",a:"James Cameron"}] },
+        { name: "Geografie", questions: [{points:100,q:"Was ist die Hauptstadt von Deutschland?",a:"Berlin"},{points:200,q:"Auf welchem Kontinent liegt Ägypten?",a:"Afrika"},{points:300,q:"Welcher ist der längste Fluss der Erde?",a:"Amazonas / Nil"},{points:400,q:"Zu welchem Land gehört die Urlaubsinsel Bali?",a:"Indonesien"},{points:500,q:"Welches ist das flächenmäßig kleinste Land der Welt?",a:"Vatikanstadt"}] },
+        { name: "Gaming", questions: [{points:100,q:"Welches ist das meistveraufte Videospiel aller Zeiten?",a:"Minecraft"},{points:200,q:"Wofür steht die Abkürzung 'LOL' im Chat?",a:"Laughing Out Loud"},{points:300,q:"Aus welchem Fahrzeug springt man am Anfang einer Fortnite-Runde?",a:"Schlachtenbus"},{points:400,q:"Wie heißt der grüne Held in 'The Legend of Zelda'?",a:"Link"},{points:500,q:"In welchem Jahr wurde die Videoplattform YouTube gegründet?",a:"2005"}] }
       ]
     };
 
@@ -310,15 +307,16 @@
     tabLobbyBtn.onclick = () => { tabLobby.style.display="block"; tabCreator.style.display="none"; tabLobbyBtn.classList.add("active"); tabCreatorBtn.classList.remove("active"); };
     tabCreatorBtn.onclick = () => { tabLobby.style.display="none"; tabCreator.style.display="block"; tabCreatorBtn.classList.add("active"); tabLobbyBtn.classList.remove("active"); buildEditorForm(); };
 
-    async function loadSavedQuizzes() {
+    function loadSavedQuizzes() {
       quizSelect.innerHTML = `<option value="default">Standard Allround Quiz</option>`;
       try {
-        const snap = await get(child(ref(db), 'custom_quizzes'));
-        if (snap.exists()) {
-          const quizzes = snap.val();
+        const localData = localStorage.getItem("my_private_quizzes");
+        if (localData) {
+          const quizzes = JSON.parse(localData);
           Object.keys(quizzes).forEach(key => {
             const opt = document.createElement("option");
-            opt.value = key; opt.innerText = quizzes[key].title;
+            opt.value = key; 
+            opt.innerText = quizzes[key].title;
             quizSelect.appendChild(opt);
           });
         }
@@ -341,9 +339,14 @@
 
       const selectedVal = quizSelect.value;
       if (selectedVal !== "default") {
-        const snap = await get(child(ref(db), 'custom_quizzes/' + selectedVal));
-        if (snap.exists()) currentQuiz = snap.val();
-      } else { currentQuiz = defaultQuiz; }
+        const localData = localStorage.getItem("my_private_quizzes");
+        if (localData) {
+          const quizzes = JSON.parse(localData);
+          if (quizzes[selectedVal]) currentQuiz = quizzes[selectedVal];
+        }
+      } else { 
+        currentQuiz = defaultQuiz; 
+      }
 
       setTheme(currentQuiz.theme);
 
@@ -454,6 +457,7 @@
       modalPoints.innerText = `${currentQuiz.categories[catIdx].name} – ${qData.points} Punkte`;
       modalQuestion.innerText = qData.q;
       modalAnswer.innerText = "Lösung: " + qData.a;
+      modalAnswer.style.display = "none";
       modalMedia.innerHTML = "";
 
       if (qData.mediaType === "image" && qData.media) {
@@ -471,19 +475,21 @@
         if (endSec > 0) timeParams.push("end=" + endSec);
         embedUrl += (embedUrl.includes("?") ? "&" : "?") + timeParams.join("&");
 
-        // Clean Wrapper schneidet oberen Titel-Bereich von YouTube ab!
         modalMedia.innerHTML = `<div class="clean-video-wrapper"><iframe src="${embedUrl}" allow="autoplay; encrypted-media"></iframe></div>`;
       } else if (qData.mediaType === "music" && qData.media) {
-        // Spoiler-Freie Musikkarte mit Musiknote!
         let musicUrl = qData.media;
         if (musicUrl.includes("spotify.com/track/")) {
           musicUrl = musicUrl.replace("spotify.com/track/", "spotify.com/embed/track/");
+        } else if (musicUrl.includes("spotify.com/playlist/")) {
+          musicUrl = musicUrl.replace("spotify.com/playlist/", "spotify.com/embed/playlist/");
         }
+        
+        // HIER NUR NOCH "Hör gut zu..." OHNE "Welches Lied ist das?"
         modalMedia.innerHTML = `
           <div class="music-spoiler-card">
-            <div class="music-icon">🎵</div>
-            <div style="font-weight:800;color:var(--gold);margin-bottom:10px;">Höre gut zu... Welches Lied ist das?</div>
-            <audio controls autoplay src="${musicUrl}" style="width:100%;max-width:350px;"></audio>
+            <div style="font-size:36px;margin-bottom:6px;">🎵</div>
+            <div style="font-weight:800;color:var(--gold);margin-bottom:10px;font-size:15px;">Hör gut zu...</div>
+            <iframe src="${musicUrl}?utm_source=generator&theme=0" width="100%" height="80" frameBorder="0" allowfullscreen="" allow="autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture" loading="lazy" style="border-radius:8px;"></iframe>
           </div>
         `;
       }
@@ -576,7 +582,6 @@
       podiumModal.style.display = "flex";
     }
 
-    // EDITOR FORMULAR GENERIEREN
     function buildEditorForm() {
       const container = document.getElementById("editorCategories");
       if (container.children.length > 0) return;
@@ -622,7 +627,7 @@
               </div>
 
               <div id="m_box_music_${c}_${q}" style="display:none;">
-                <input type="text" id="m_mus_url_${c}_${q}" placeholder="MP3-URL oder Audio-Link">
+                <input type="text" id="m_mus_url_${c}_${q}" placeholder="Spotify Track-Link (z.B. https://open.spotify.com/track/...)">
               </div>
             </div>
           `;
@@ -648,7 +653,7 @@
       reader.readAsDataURL(file);
     };
 
-    document.getElementById("saveQuizBtn").onclick = async () => {
+    document.getElementById("saveQuizBtn").onclick = () => {
       const title = document.getElementById("newQuizTitle").value.trim();
       const theme = document.getElementById("quizTheme").value;
       if (!title) return alert("Bitte gib dem Quiz einen Titel!");
@@ -666,14 +671,11 @@
           const musVal = document.getElementById(`m_mus_url_${c}_${q}`).value.trim();
 
           if (vidVal) {
-            mediaType = "video";
-            mediaVal = vidVal;
+            mediaType = "video"; mediaVal = vidVal;
           } else if (musVal) {
-            mediaType = "music";
-            mediaVal = musVal;
+            mediaType = "music"; mediaVal = musVal;
           } else if (imgVal) {
-            mediaType = "image";
-            mediaVal = imgVal;
+            mediaType = "image"; mediaVal = imgVal;
           }
 
           questions.push({
@@ -692,8 +694,13 @@
       }
 
       const quizId = "quiz_" + Date.now();
-      await set(ref(db, 'custom_quizzes/' + quizId), { title, theme, categories });
-      alert("🎉 Dein Quiz wurde ohne Spoiler-Gefahr gespeichert!");
+      const localData = localStorage.getItem("my_private_quizzes");
+      const quizzes = localData ? JSON.parse(localData) : {};
+      quizzes[quizId] = { title, theme, categories };
+      
+      localStorage.setItem("my_private_quizzes", JSON.stringify(quizzes));
+
+      alert("🎉 Dein Quiz wurde privat auf deinem Gerät gespeichert!");
       loadSavedQuizzes();
       tabLobbyBtn.click();
     };
