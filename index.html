@@ -115,4 +115,22 @@ $("leaveBtn").onclick=()=>{if(isHost&&channel)send("HOST_LEFT");if(channel)sb.re
 try{$("supabaseUrl").value=localStorage.getItem("quizshow-supabase-url")||"";$("supabaseKey").value=localStorage.getItem("quizshow-supabase-key")||"";const d=localStorage.getItem(localKey);if(d)game=JSON.parse(d)}catch(e){}
 initQs();render();
 </script>
+  <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+
+  // Your web app's Firebase configuration
+  const firebaseConfig = {
+    apiKey: "AIzaSyBKpsb9QBZDn7oulxxcu0Ckziq74rjhrR8",
+    authDomain: "quiz-duell-online.firebaseapp.com",
+    databaseURL: "https://quiz-duell-online-default-rtdb.europe-west1.firebasedatabase.app",
+    projectId: "quiz-duell-online",
+    storageBucket: "quiz-duell-online.firebasestorage.app",
+    messagingSenderId: "350039999105",
+    appId: "1:350039999105:web:3120329d853687f6654380"
+  };
+
+  // Initialize Firebase
+  const app = initializeApp(firebaseConfig);
+</script>
+
 </body></html>
