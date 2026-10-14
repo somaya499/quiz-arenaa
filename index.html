@@ -100,7 +100,11 @@
 
           <label style="font-size:12px;color:var(--muted);">Wähle ein Quiz aus:</label>
           <select id="quizSelect" style="margin-top:4px;"></select>
-          <button id="createBtn" style="margin-top:6px;">Spielzimmer erstellen</button>
+          
+          <div style="display:flex;gap:6px;margin-top:6px;">
+            <button id="createBtn" style="flex:2;margin:0;">Spielzimmer erstellen</button>
+            <button id="deleteQuizBtn" class="btn-danger" style="flex:1;margin:0;font-size:13px;" title="Ausgewähltes Quiz löschen">🗑️ Löschen</button>
+          </div>
         </div>
 
         <div>
@@ -278,6 +282,7 @@
     const quizSelect = document.getElementById("quizSelect");
     const statusMsg = document.getElementById("statusMsg");
     const createBtn = document.getElementById("createBtn");
+    const deleteQuizBtn = document.getElementById("deleteQuizBtn");
     const joinBtn = document.getElementById("joinBtn");
     const gameArea = document.getElementById("gameArea");
     const displayCode = document.getElementById("displayCode");
@@ -324,6 +329,28 @@
       } catch (e) {}
     }
     loadSavedQuizzes();
+
+    // QUIZ LÖSCHEN BUTTON
+    deleteQuizBtn.onclick = () => {
+      const selectedVal = quizSelect.value;
+      if (selectedVal === "default") {
+        return alert("Das Standard-Quiz kann nicht gelöscht werden!");
+      }
+      if (!confirm("Möchtest du dieses Quiz wirklich unwiderruflich löschen?")) return;
+
+      try {
+        const localData = localStorage.getItem("my_private_quizzes");
+        if (localData) {
+          const quizzes = JSON.parse(localData);
+          delete quizzes[selectedVal];
+          localStorage.setItem("my_private_quizzes", JSON.stringify(quizzes));
+          alert("🗑️ Quiz erfolgreich gelöscht!");
+          loadSavedQuizzes();
+        }
+      } catch (e) {
+        alert("Fehler beim Löschen des Quiz.");
+      }
+    };
 
     function setTheme(themeName) { document.body.className = "theme-" + (themeName || "dunkelblau"); }
     function genCode() {
@@ -477,27 +504,39 @@
         let startSec = (parseInt(qData.startMin||0)*60) + parseInt(qData.startSec||0);
         let endSec = (parseInt(qData.endMin||0)*60) + parseInt(qData.endSec||0);
         
-        // Autoplay und saubere Parameter gegen Titel-Spoiler
         let timeParams = ["autoplay=1", "controls=1", "modestbranding=1", "rel=0", "showinfo=0"];
         if (startSec > 0) timeParams.push("start=" + startSec);
         if (endSec > 0) timeParams.push("end=" + endSec);
         embedUrl += (embedUrl.includes("?") ? "&" : "?") + timeParams.join("&");
 
-        // Noch tieferer Zoom (-100px), damit YouTube-Vorschaubilder/Titel komplett unsichtbar bleiben!
         modalMedia.innerHTML = `
           <div class="clean-video-wrapper">
             <iframe src="${embedUrl}" allow="autoplay; encrypted-media"></iframe>
           </div>
         `;
       } else if (qData.mediaType === "music" && qData.media) {
-        // Fallback auf Audioelement oder YouTube-Link im Musik-Tab
-        modalMedia.innerHTML = `
-          <div class="music-spoiler-card">
-            <div style="font-size:36px;margin-bottom:6px;">🎵</div>
-            <div style="font-weight:800;color:var(--gold);margin-bottom:12px;font-size:15px;">Hör gut zu...</div>
-            <audio controls autoplay src="${qData.media}" style="width:100%;max-width:360px;border-radius:8px;"></audio>
-          </div>
-        `;
+        // Falls hier ein YouTube-Link im Musik-Tab steht, wandeln wir ihn automatisch in den sauberen Videoplayer um, damit kein "Fehler" kommt!
+        let musicUrl = qData.media;
+        if (musicUrl.includes("youtube.com") || musicUrl.includes("youtu.be")) {
+          let embedUrl = musicUrl;
+          if (embedUrl.includes("watch?v=")) embedUrl = embedUrl.replace("watch?v=", "embed/");
+          if (embedUrl.includes("youtu.be/")) embedUrl = embedUrl.replace("youtu.be/", "www.youtube.com/embed/");
+          embedUrl += (embedUrl.includes("?") ? "&" : "?") + "autoplay=1&controls=1&modestbranding=1&rel=0";
+          
+          modalMedia.innerHTML = `
+            <div class="clean-video-wrapper">
+              <iframe src="${embedUrl}" allow="autoplay; encrypted-media"></iframe>
+            </div>
+          `;
+        } else {
+          modalMedia.innerHTML = `
+            <div class="music-spoiler-card">
+              <div style="font-size:36px;margin-bottom:6px;">🎵</div>
+              <div style="font-weight:800;color:var(--gold);margin-bottom:12px;font-size:15px;">Hör gut zu...</div>
+              <audio controls autoplay src="${qData.media}" style="width:100%;max-width:360px;border-radius:8px;"></audio>
+            </div>
+          `;
+        }
       }
 
       if (buzzerWinner) {
@@ -633,7 +672,7 @@
               </div>
 
               <div id="m_box_music_${c}_${q}" style="display:none;">
-                <input type="text" id="m_mus_url_${c}_${q}" placeholder="YouTube oder Audio-Link für Musikfragen">
+                <input type="text" id="m_mus_url_${c}_${q}" placeholder="YouTube-Link oder Audio-Link (.mp3)">
               </div>
             </div>
           `;
